@@ -1,0 +1,190 @@
+id: overmind_rpc_failover
+namespace: trading.overmind
+description: "THE OVERMIND PROTOCOL - RPC Provider Failover Management"
+
+labels:
+  system: overmind
+  component: rpc-failover
+  criticality: high
+
+variables:
+  check_interval: 60 # seconds
+  timeout_threshold: 5000 # ms
+  failure_threshold: 3 # consecutive failures
+
+tasks:
+  # ============================================================================
+  # RPC HEALTH MONITORING
+  # ============================================================================
+  - id: monitor_rpc_providers
+    type: io.kestra.plugin.core.flow.Parallel
+    tasks:
+      - id: test_helius_performance
+        type: io.kestra.plugin.scripts.python.Script
+        script: |
+          import requests
+          import time
+          import json
+          
+          def test_rpc_latency(url, name):
+              try:
+                  start_time = time.time()
+                  response = requests.post(url, 
+                      json={"jsonrpc":"2.0","id":1,"method":"getHealth"},
+                      timeout=5)
+                  latency = (time.time() - start_time) * 1000
+                  
+                  if response.status_code == 200:
+                      print(f"✅ {name}: {latency:.2f}ms")
+                      return {"provider": name, "latency": latency, "status": "healthy"}
+                  else:
+                      print(f"❌ {name}: HTTP {response.status_code}")
+                      return {"provider": name, "latency": 9999, "status": "error"}
+              except Exception as e:
+                  print(f"❌ {name}: {str(e)}")
+                  return {"provider": name, "latency": 9999, "status": "failed"}
+          
+          # Test Helius
+          helius_url = "https://mainnet.helius-rpc.com/?api-key=" + "{{ secret('HELIUS_API_KEY') }}"
+          result = test_rpc_latency(helius_url, "Helius")
+          
+          # Output for Kestra
+          print(json.dumps(result))
+          
+      - id: test_quicknode_performance
+        type: io.kestra.plugin.scripts.python.Script
+        script: |
+          import requests
+          import time
+          import json
+          
+          def test_rpc_latency(url, name):
+              try:
+                  start_time = time.time()
+                  response = requests.post(url, 
+                      json={"jsonrpc":"2.0","id":1,"method":"getHealth"},
+                      timeout=5)
+                  latency = (time.time() - start_time) * 1000
+                  
+                  if response.status_code == 200:
+                      print(f"✅ {name}: {latency:.2f}ms")
+                      return {"provider": name, "latency": latency, "status": "healthy"}
+                  else:
+                      print(f"❌ {name}: HTTP {response.status_code}")
+                      return {"provider": name, "latency": 9999, "status": "error"}
+              except Exception as e:
+                  print(f"❌ {name}: {str(e)}")
+                  return {"provider": name, "latency": 9999, "status": "failed"}
+          
+          # Test QuickNode
+          quicknode_url = "{{ secret('QUICKNODE_RPC_URL') }}"
+          result = test_rpc_latency(quicknode_url, "QuickNode")
+          
+          # Output for Kestra
+          print(json.dumps(result))
+
+  # ============================================================================
+  # FAILOVER DECISION ENGINE
+  # ============================================================================
+  - id: evaluate_failover_decision
+    type: io.kestra.plugin.scripts.python.Script
+    script: |
+      import json
+      
+      # Parse results from previous tasks
+      helius_result = json.loads("{{ outputs.test_helius_performance.stdout }}")
+      quicknode_result = json.loads("{{ outputs.test_quicknode_performance.stdout }}")
+      
+      print("📊 RPC Performance Analysis:")
+      print(f"   Helius: {helius_result['latency']:.2f}ms - {helius_result['status']}")
+      print(f"   QuickNode: {quicknode_result['latency']:.2f}ms - {quicknode_result['status']}")
+      
+      # Decision logic
+      if helius_result['status'] == 'healthy' and helius_result['latency'] < 1000:
+          primary_provider = "helius"
+          backup_provider = "quicknode"
+          print("✅ Helius is primary")
+      elif quicknode_result['status'] == 'healthy' and quicknode_result['latency'] < 1000:
+          primary_provider = "quicknode"
+          backup_provider = "helius"
+          print("🔄 Switching to QuickNode as primary")
+      else:
+          print("🚨 Both providers have issues!")
+          primary_provider = "helius"  # Default fallback
+          backup_provider = "quicknode"
+      
+      # Output decision
+      decision = {
+          "primary": primary_provider,
+          "backup": backup_provider,
+          "switch_needed": primary_provider != "helius"
+      }
+      
+      print(json.dumps(decision))
+
+  # ============================================================================
+  # UPDATE OVERMIND CONFIGURATION
+  # ============================================================================
+  - id: update_overmind_rpc_config
+    type: io.kestra.plugin.scripts.shell.Commands
+    runIf: "{{ json(outputs.evaluate_failover_decision.stdout).switch_needed }}"
+    commands:
+      - |
+        echo "🔄 Updating THE OVERMIND PROTOCOL RPC configuration..."
+        
+        # Send configuration update to running OVERMIND instance
+        curl -X POST http://localhost:8080/api/config/rpc \
+        -H "Content-Type: application/json" \
+        -d '{
+          "primary_provider": "{{ json(outputs.evaluate_failover_decision.stdout).primary }}",
+          "backup_provider": "{{ json(outputs.evaluate_failover_decision.stdout).backup }}",
+          "updated_at": "{{ now() }}"
+        }'
+        
+        echo "✅ RPC configuration updated"
+
+  # ============================================================================
+  # ALERT ON FAILOVER
+  # ============================================================================
+  - id: send_failover_alert
+    type: io.kestra.plugin.notifications.slack.SlackIncomingWebhook
+    runIf: "{{ json(outputs.evaluate_failover_decision.stdout).switch_needed }}"
+    url: "{{ secret('SLACK_WEBHOOK_URL') }}"
+    payload: |
+      {
+        "text": "🔄 THE OVERMIND PROTOCOL - RPC Failover Activated",
+        "attachments": [
+          {
+            "color": "warning",
+            "fields": [
+              {
+                "title": "New Primary Provider",
+                "value": "{{ json(outputs.evaluate_failover_decision.stdout).primary }}",
+                "short": true
+              },
+              {
+                "title": "Backup Provider",
+                "value": "{{ json(outputs.evaluate_failover_decision.stdout).backup }}",
+                "short": true
+              },
+              {
+                "title": "Timestamp",
+                "value": "{{ now() }}",
+                "short": true
+              }
+            ]
+          }
+        ]
+      }
+
+# ============================================================================
+# CONTINUOUS MONITORING TRIGGER
+# ============================================================================
+triggers:
+  - id: continuous_rpc_monitoring
+    type: io.kestra.plugin.core.trigger.Schedule
+    cron: "*/5 * * * *"  # Every 5 minutes
+    
+  - id: intensive_monitoring_during_trading
+    type: io.kestra.plugin.core.trigger.Schedule
+    cron: "*/1 9-16 * * 1-5"  # Every minute during trading hours (9 AM - 4 PM, weekdays)

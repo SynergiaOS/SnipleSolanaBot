@@ -1,0 +1,11 @@
+/home/marcin/windsurf/Projects/TradingBot-Clean/target/contabo/deps/powerfmt-b63139afe21a8a17.d: /home/marcin/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/powerfmt-0.2.0/src/lib.rs /home/marcin/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/powerfmt-0.2.0/src/buf.rs /home/marcin/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/powerfmt-0.2.0/src/ext.rs /home/marcin/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/powerfmt-0.2.0/src/smart_display.rs /home/marcin/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/powerfmt-0.2.0/src/smart_display_impls.rs
+
+/home/marcin/windsurf/Projects/TradingBot-Clean/target/contabo/deps/libpowerfmt-b63139afe21a8a17.rlib: /home/marcin/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/powerfmt-0.2.0/src/lib.rs /home/marcin/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/powerfmt-0.2.0/src/buf.rs /home/marcin/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/powerfmt-0.2.0/src/ext.rs /home/marcin/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/powerfmt-0.2.0/src/smart_display.rs /home/marcin/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/powerfmt-0.2.0/src/smart_display_impls.rs
+
+/home/marcin/windsurf/Projects/TradingBot-Clean/target/contabo/deps/libpowerfmt-b63139afe21a8a17.rmeta: /home/marcin/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/powerfmt-0.2.0/src/lib.rs /home/marcin/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/powerfmt-0.2.0/src/buf.rs /home/marcin/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/powerfmt-0.2.0/src/ext.rs /home/marcin/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/powerfmt-0.2.0/src/smart_display.rs /home/marcin/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/powerfmt-0.2.0/src/smart_display_impls.rs
+
+/home/marcin/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/powerfmt-0.2.0/src/lib.rs:
+/home/marcin/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/powerfmt-0.2.0/src/buf.rs:
+/home/marcin/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/powerfmt-0.2.0/src/ext.rs:
+/home/marcin/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/powerfmt-0.2.0/src/smart_display.rs:
+/home/marcin/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/powerfmt-0.2.0/src/smart_display_impls.rs:

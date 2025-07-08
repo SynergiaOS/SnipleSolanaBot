@@ -1,0 +1,193 @@
+id: overmind_daily_startup
+namespace: trading.overmind
+description: "THE OVERMIND PROTOCOL - Daily Startup and Health Check"
+
+labels:
+  system: overmind
+  environment: production
+  criticality: high
+
+inputs:
+  - id: trading_mode
+    type: SELECT
+    values: ["paper", "live"]
+    defaults: "paper"
+    description: "Trading mode for today's session"
+
+variables:
+  startup_time: "{{ now() }}"
+  health_check_timeout: 300 # 5 minutes
+
+tasks:
+  # ============================================================================
+  # INFRASTRUCTURE HEALTH CHECK
+  # ============================================================================
+  - id: check_infrastructure
+    type: io.kestra.plugin.core.flow.Parallel
+    tasks:
+      - id: check_docker_containers
+        type: io.kestra.plugin.scripts.shell.Commands
+        commands:
+          - docker-compose ps
+          - docker stats --no-stream
+        
+      - id: check_dragonfly_db
+        type: io.kestra.plugin.scripts.shell.Commands
+        commands:
+          - redis-cli -h localhost -p 6379 ping
+          
+      - id: check_chroma_vector_db
+        type: io.kestra.plugin.scripts.shell.Commands
+        commands:
+          - curl -s http://localhost:8000/api/v1/heartbeat
+
+  # ============================================================================
+  # AI BRAIN STARTUP
+  # ============================================================================
+  - id: start_ai_brain
+    type: io.kestra.plugin.scripts.python.Script
+    script: |
+      import requests
+      import time
+      import subprocess
+      
+      print("🧠 Starting AI Brain...")
+      
+      # Start AI Brain container
+      subprocess.run(["docker-compose", "up", "-d", "ai-brain"])
+      
+      # Wait for AI Brain to be ready
+      for i in range(30):
+          try:
+              response = requests.get("http://localhost:8000/health")
+              if response.status_code == 200:
+                  print("✅ AI Brain is ready")
+                  break
+          except:
+              time.sleep(2)
+      else:
+          raise Exception("❌ AI Brain failed to start")
+
+  # ============================================================================
+  # HELIUS + QUICKNODE CONNECTION TEST
+  # ============================================================================
+  - id: test_data_connections
+    type: io.kestra.plugin.core.flow.Parallel
+    tasks:
+      - id: test_helius_connection
+        type: io.kestra.plugin.scripts.shell.Commands
+        commands:
+          - |
+            curl -s "https://mainnet.helius-rpc.com/?api-key=$HELIUS_API_KEY" \
+            -H "Content-Type: application/json" \
+            -d '{"jsonrpc":"2.0","id":1,"method":"getHealth"}' || echo "Helius connection failed"
+            
+      - id: test_quicknode_connection
+        type: io.kestra.plugin.scripts.shell.Commands
+        commands:
+          - |
+            curl -s -X POST "$QUICKNODE_RPC_URL" \
+            -H "Content-Type: application/json" \
+            -d '{"jsonrpc":"2.0","id":1,"method":"getHealth"}' || echo "QuickNode connection failed"
+
+  # ============================================================================
+  # START RUST HFT ENGINE
+  # ============================================================================
+  - id: start_overmind_engine
+    type: io.kestra.plugin.scripts.shell.Commands
+    commands:
+      - |
+        export SNIPER_TRADING_MODE="{{ inputs.trading_mode }}"
+        export OVERMIND_AI_MODE=enabled
+        
+        echo "🚀 Starting THE OVERMIND PROTOCOL Engine..."
+        
+        # Start THE OVERMIND PROTOCOL
+        cargo run --profile contabo --bin overmind_mev_demo &
+        
+        # Wait for engine to be ready
+        sleep 30
+        
+        # Check if engine is responding
+        curl -s http://localhost:8080/health || exit 1
+        
+        echo "✅ THE OVERMIND PROTOCOL Engine started in {{ inputs.trading_mode }} mode"
+
+  # ============================================================================
+  # PAPER TRADING VALIDATION (if paper mode)
+  # ============================================================================
+  - id: paper_trading_validation
+    type: io.kestra.plugin.scripts.python.Script
+    runIf: "{{ inputs.trading_mode == 'paper' }}"
+    script: |
+      import requests
+      import time
+      
+      print("🧪 Running paper trading validation...")
+      
+      start_time = time.time()
+      while time.time() - start_time < 300:  # 5 minutes
+          try:
+              # Check system metrics
+              response = requests.get("http://localhost:8080/metrics")
+              metrics = response.json()
+              
+              print(f"📊 Latency: {metrics.get('avg_latency_ms', 'N/A')}ms")
+              print(f"📈 Opportunities detected: {metrics.get('opportunities_detected', 0)}")
+              print(f"🎯 Success rate: {metrics.get('success_rate', 0)}%")
+              
+              time.sleep(60)  # Check every minute
+          except Exception as e:
+              print(f"⚠️ Validation error: {e}")
+              
+      print("✅ Paper trading validation completed")
+
+# ============================================================================
+# MONITORING AND ALERTS
+# ============================================================================
+afterExecution:
+  - id: send_startup_notification
+    type: io.kestra.plugin.notifications.slack.SlackIncomingWebhook
+    url: "{{ secret('SLACK_WEBHOOK_URL') }}"
+    payload: |
+      {
+        "text": "🧠 THE OVERMIND PROTOCOL Startup Complete",
+        "attachments": [
+          {
+            "color": "good",
+            "fields": [
+              {
+                "title": "Trading Mode",
+                "value": "{{ inputs.trading_mode }}",
+                "short": true
+              },
+              {
+                "title": "Startup Time",
+                "value": "{{ vars.startup_time }}",
+                "short": true
+              },
+              {
+                "title": "Status",
+                "value": "{{ execution.state }}",
+                "short": true
+              }
+            ]
+          }
+        ]
+      }
+
+# ============================================================================
+# SCHEDULED TRIGGERS
+# ============================================================================
+triggers:
+  - id: daily_startup
+    type: io.kestra.plugin.core.trigger.Schedule
+    cron: "0 8 * * 1-5"  # Weekdays at 8 AM
+    inputs:
+      trading_mode: "paper"  # Default to paper mode
+      
+  - id: weekend_maintenance
+    type: io.kestra.plugin.core.trigger.Schedule
+    cron: "0 2 * * 6"  # Saturday at 2 AM
+    inputs:
+      trading_mode: "maintenance"

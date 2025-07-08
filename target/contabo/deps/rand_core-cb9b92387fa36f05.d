@@ -1,0 +1,12 @@
+/home/marcin/windsurf/Projects/TradingBot-Clean/target/contabo/deps/rand_core-cb9b92387fa36f05.d: /home/marcin/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/rand_core-0.6.4/src/lib.rs /home/marcin/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/rand_core-0.6.4/src/block.rs /home/marcin/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/rand_core-0.6.4/src/error.rs /home/marcin/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/rand_core-0.6.4/src/impls.rs /home/marcin/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/rand_core-0.6.4/src/le.rs /home/marcin/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/rand_core-0.6.4/src/os.rs
+
+/home/marcin/windsurf/Projects/TradingBot-Clean/target/contabo/deps/librand_core-cb9b92387fa36f05.rlib: /home/marcin/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/rand_core-0.6.4/src/lib.rs /home/marcin/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/rand_core-0.6.4/src/block.rs /home/marcin/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/rand_core-0.6.4/src/error.rs /home/marcin/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/rand_core-0.6.4/src/impls.rs /home/marcin/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/rand_core-0.6.4/src/le.rs /home/marcin/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/rand_core-0.6.4/src/os.rs
+
+/home/marcin/windsurf/Projects/TradingBot-Clean/target/contabo/deps/librand_core-cb9b92387fa36f05.rmeta: /home/marcin/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/rand_core-0.6.4/src/lib.rs /home/marcin/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/rand_core-0.6.4/src/block.rs /home/marcin/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/rand_core-0.6.4/src/error.rs /home/marcin/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/rand_core-0.6.4/src/impls.rs /home/marcin/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/rand_core-0.6.4/src/le.rs /home/marcin/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/rand_core-0.6.4/src/os.rs
+
+/home/marcin/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/rand_core-0.6.4/src/lib.rs:
+/home/marcin/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/rand_core-0.6.4/src/block.rs:
+/home/marcin/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/rand_core-0.6.4/src/error.rs:
+/home/marcin/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/rand_core-0.6.4/src/impls.rs:
+/home/marcin/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/rand_core-0.6.4/src/le.rs:
+/home/marcin/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/rand_core-0.6.4/src/os.rs:

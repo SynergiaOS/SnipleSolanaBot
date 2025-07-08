@@ -1,0 +1,1 @@
+{"rustc":11410426090777951712,"features":"[]","declared_features":"[\"loom\"]","target":9855717379987801857,"profile":13952719172529475294,"path":4277485787383512806,"deps":[],"local":[{"CheckDepInfo":{"dep_info":"contabo/.fingerprint/parking-d61363e284f35a97/dep-lib-parking","checksum":false}}],"rustflags":[],"config":2069994364910194474,"compile_kind":0}

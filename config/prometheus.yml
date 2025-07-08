@@ -1,0 +1,62 @@
+# THE OVERMIND PROTOCOL - Prometheus Configuration
+# Metrics collection for production monitoring
+
+global:
+  scrape_interval: 15s
+  evaluation_interval: 15s
+
+rule_files:
+  - "alert_rules.yml"
+
+alerting:
+  alertmanagers:
+    - static_configs:
+        - targets:
+          - alertmanager:9093
+
+scrape_configs:
+  # THE OVERMIND PROTOCOL main application
+  - job_name: 'overmind-trading'
+    static_configs:
+      - targets: ['trading-executor:8080']
+    scrape_interval: 5s
+    metrics_path: '/metrics'
+    scrape_timeout: 4s
+
+  # AI Brain monitoring
+  - job_name: 'overmind-ai-brain'
+    static_configs:
+      - targets: ['ai-brain:8000']
+    scrape_interval: 10s
+    metrics_path: '/metrics'
+    scrape_timeout: 8s
+
+  # DragonflyDB monitoring
+  - job_name: 'dragonfly'
+    static_configs:
+      - targets: ['dragonfly:6379']
+    scrape_interval: 10s
+    metrics_path: '/metrics'
+
+  # Chroma Vector Database
+  - job_name: 'chroma'
+    static_configs:
+      - targets: ['chroma:8000']
+    scrape_interval: 15s
+    metrics_path: '/api/v1/metrics'
+
+  # System metrics
+  - job_name: 'node-exporter'
+    static_configs:
+      - targets: ['node-exporter:9100']
+    scrape_interval: 15s
+
+  # Prometheus self-monitoring
+  - job_name: 'prometheus'
+    static_configs:
+      - targets: ['localhost:9090']
+
+  # AlertManager monitoring
+  - job_name: 'alertmanager'
+    static_configs:
+      - targets: ['alertmanager:9093']

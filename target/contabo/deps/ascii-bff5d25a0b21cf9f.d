@@ -1,0 +1,11 @@
+/home/marcin/windsurf/Projects/TradingBot-Clean/target/contabo/deps/ascii-bff5d25a0b21cf9f.d: /home/marcin/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/ascii-0.9.3/src/lib.rs /home/marcin/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/ascii-0.9.3/src/ascii_char.rs /home/marcin/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/ascii-0.9.3/src/ascii_str.rs /home/marcin/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/ascii-0.9.3/src/ascii_string.rs /home/marcin/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/ascii-0.9.3/src/free_functions.rs
+
+/home/marcin/windsurf/Projects/TradingBot-Clean/target/contabo/deps/libascii-bff5d25a0b21cf9f.rlib: /home/marcin/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/ascii-0.9.3/src/lib.rs /home/marcin/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/ascii-0.9.3/src/ascii_char.rs /home/marcin/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/ascii-0.9.3/src/ascii_str.rs /home/marcin/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/ascii-0.9.3/src/ascii_string.rs /home/marcin/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/ascii-0.9.3/src/free_functions.rs
+
+/home/marcin/windsurf/Projects/TradingBot-Clean/target/contabo/deps/libascii-bff5d25a0b21cf9f.rmeta: /home/marcin/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/ascii-0.9.3/src/lib.rs /home/marcin/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/ascii-0.9.3/src/ascii_char.rs /home/marcin/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/ascii-0.9.3/src/ascii_str.rs /home/marcin/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/ascii-0.9.3/src/ascii_string.rs /home/marcin/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/ascii-0.9.3/src/free_functions.rs
+
+/home/marcin/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/ascii-0.9.3/src/lib.rs:
+/home/marcin/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/ascii-0.9.3/src/ascii_char.rs:
+/home/marcin/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/ascii-0.9.3/src/ascii_str.rs:
+/home/marcin/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/ascii-0.9.3/src/ascii_string.rs:
+/home/marcin/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/ascii-0.9.3/src/free_functions.rs:

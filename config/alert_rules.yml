@@ -1,0 +1,145 @@
+# THE OVERMIND PROTOCOL - Alert Rules
+# Production monitoring and alerting rules
+
+groups:
+  - name: trading_alerts
+    rules:
+      # Critical trading alerts
+      - alert: HighDailyLoss
+        expr: daily_loss_sol > 5.0
+        for: 0m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Daily loss limit exceeded"
+          description: "Daily loss of {{ $value }} SOL exceeds limit of 5.0 SOL"
+
+      - alert: MaxPositionSizeExceeded
+        expr: max_position_size_sol > 10.0
+        for: 0m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Position size limit exceeded"
+          description: "Position size of {{ $value }} SOL exceeds limit of 10.0 SOL"
+
+      - alert: HighExecutionLatency
+        expr: execution_latency_ms > 10
+        for: 30s
+        labels:
+          severity: warning
+        annotations:
+          summary: "High execution latency detected"
+          description: "Execution latency of {{ $value }}ms exceeds target of 10ms"
+
+      - alert: AIAnalysisTimeout
+        expr: ai_analysis_latency_ms > 5000
+        for: 10s
+        labels:
+          severity: warning
+        annotations:
+          summary: "AI analysis taking too long"
+          description: "AI analysis latency of {{ $value }}ms exceeds target of 5000ms"
+
+      - alert: TradingSystemDown
+        expr: up{job="overmind-trading"} == 0
+        for: 30s
+        labels:
+          severity: critical
+        annotations:
+          summary: "Trading system is down"
+          description: "THE OVERMIND PROTOCOL trading system is not responding"
+
+      - alert: HighErrorRate
+        expr: rate(trading_errors_total[5m]) > 0.1
+        for: 2m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High error rate detected"
+          description: "Error rate of {{ $value }} errors/sec is above threshold"
+
+      - alert: LowProfitability
+        expr: hourly_profit_percentage < -2.0
+        for: 1h
+        labels:
+          severity: warning
+        annotations:
+          summary: "Low profitability detected"
+          description: "Hourly profit of {{ $value }}% is below -2%"
+
+  - name: infrastructure_alerts
+    rules:
+      - alert: HighCPUUsage
+        expr: 100 - (avg by(instance) (irate(node_cpu_seconds_total{mode="idle"}[5m])) * 100) > 80
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High CPU usage"
+          description: "CPU usage of {{ $value }}% is above 80%"
+
+      - alert: HighMemoryUsage
+        expr: (1 - (node_memory_MemAvailable_bytes / node_memory_MemTotal_bytes)) * 100 > 85
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High memory usage"
+          description: "Memory usage of {{ $value }}% is above 85%"
+
+      - alert: DragonflyDBDown
+        expr: up{job="dragonfly"} == 0
+        for: 30s
+        labels:
+          severity: critical
+        annotations:
+          summary: "DragonflyDB is down"
+          description: "DragonflyDB is not responding"
+
+      - alert: ChromaDBDown
+        expr: up{job="chroma"} == 0
+        for: 30s
+        labels:
+          severity: critical
+        annotations:
+          summary: "Chroma Vector DB is down"
+          description: "Chroma database is not responding"
+
+      - alert: AIBrainDown
+        expr: up{job="overmind-ai-brain"} == 0
+        for: 30s
+        labels:
+          severity: critical
+        annotations:
+          summary: "AI Brain is down"
+          description: "AI Brain service is not responding"
+
+  - name: performance_alerts
+    rules:
+      - alert: HighNetworkLatency
+        expr: network_latency_ms > 100
+        for: 2m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High network latency"
+          description: "Network latency of {{ $value }}ms is above 100ms"
+
+      - alert: LowThroughput
+        expr: trades_per_minute < 1
+        for: 10m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Low trading throughput"
+          description: "Trading throughput of {{ $value }} trades/min is below expected"
+
+      - alert: MemoryLeak
+        expr: increase(process_resident_memory_bytes[1h]) > 100000000
+        for: 0m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Potential memory leak detected"
+          description: "Memory usage increased by {{ $value }} bytes in the last hour"

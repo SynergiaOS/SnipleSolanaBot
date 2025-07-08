@@ -1,0 +1,331 @@
+# THE OVERMIND PROTOCOL - Risk Management Configuration
+# Production-grade risk controls and safety mechanisms
+
+# =============================================================================
+# POSITION SIZING LIMITS
+# =============================================================================
+position_limits:
+  # Maximum position size per trade (in SOL)
+  max_position_size_sol: 10.0
+  
+  # Maximum total exposure across all positions (in SOL)
+  max_total_exposure_sol: 25.0
+  
+  # Maximum percentage of portfolio per single trade
+  max_position_percentage: 20.0
+  
+  # Maximum number of concurrent positions
+  max_concurrent_positions: 5
+  
+  # Minimum position size to avoid dust trades (in SOL)
+  min_position_size_sol: 0.1
+
+# =============================================================================
+# LOSS LIMITS
+# =============================================================================
+loss_limits:
+  # Maximum daily loss (in SOL)
+  max_daily_loss_sol: 5.0
+  
+  # Maximum weekly loss (in SOL)
+  max_weekly_loss_sol: 15.0
+  
+  # Maximum monthly loss (in SOL)
+  max_monthly_loss_sol: 40.0
+  
+  # Maximum drawdown percentage from peak
+  max_drawdown_percentage: 15.0
+  
+  # Stop trading if daily loss exceeds this percentage
+  daily_loss_stop_percentage: 10.0
+
+# =============================================================================
+# STOP LOSS CONFIGURATION
+# =============================================================================
+stop_loss:
+  # Default stop loss percentage for all trades
+  default_stop_loss_percentage: 5.0
+  
+  # Maximum stop loss percentage (safety limit)
+  max_stop_loss_percentage: 10.0
+  
+  # Trailing stop loss configuration
+  trailing_stop:
+    enabled: true
+    trail_percentage: 2.0
+    min_profit_to_activate: 3.0
+  
+  # Time-based stop loss
+  time_stop:
+    enabled: true
+    max_hold_time_minutes: 60
+    force_close_after_minutes: 120
+
+# =============================================================================
+# TAKE PROFIT CONFIGURATION
+# =============================================================================
+take_profit:
+  # Default take profit percentage
+  default_take_profit_percentage: 15.0
+  
+  # Partial profit taking
+  partial_profits:
+    enabled: true
+    levels:
+      - percentage: 5.0
+        close_amount: 25.0  # Close 25% of position
+      - percentage: 10.0
+        close_amount: 50.0  # Close 50% of remaining
+      - percentage: 20.0
+        close_amount: 100.0 # Close all remaining
+
+# =============================================================================
+# SLIPPAGE CONTROLS
+# =============================================================================
+slippage:
+  # Maximum allowed slippage percentage
+  max_slippage_percentage: 1.0
+  
+  # Preferred slippage for normal conditions
+  preferred_slippage_percentage: 0.5
+  
+  # Emergency slippage for urgent exits
+  emergency_slippage_percentage: 2.0
+  
+  # Reject trades with slippage above this threshold
+  rejection_threshold_percentage: 1.5
+
+# =============================================================================
+# LEVERAGE CONTROLS
+# =============================================================================
+leverage:
+  # Maximum leverage allowed
+  max_leverage: 2.0
+  
+  # Default leverage for new positions
+  default_leverage: 1.0
+  
+  # Leverage reduction triggers
+  reduction_triggers:
+    high_volatility: 1.5
+    market_stress: 1.2
+    late_session: 1.0
+
+# =============================================================================
+# VOLATILITY CONTROLS
+# =============================================================================
+volatility:
+  # Maximum volatility threshold to enter trades
+  max_entry_volatility: 50.0
+  
+  # Volatility-based position sizing
+  volatility_scaling:
+    enabled: true
+    low_volatility_multiplier: 1.2
+    high_volatility_multiplier: 0.8
+  
+  # Volatility measurement period (minutes)
+  measurement_period_minutes: 15
+
+# =============================================================================
+# CORRELATION LIMITS
+# =============================================================================
+correlation:
+  # Maximum correlation between positions
+  max_position_correlation: 0.7
+  
+  # Correlation measurement period (days)
+  correlation_period_days: 30
+  
+  # Reduce position size if correlation exceeds threshold
+  correlation_reduction_factor: 0.5
+
+# =============================================================================
+# TIME-BASED CONTROLS
+# =============================================================================
+time_controls:
+  # Trading hours (UTC)
+  trading_hours:
+    start: "00:00"
+    end: "23:59"
+  
+  # Reduced risk periods
+  reduced_risk_periods:
+    - name: "Market Open"
+      start: "13:30"
+      end: "14:30"
+      risk_multiplier: 0.7
+    
+    - name: "Market Close"
+      start: "20:00"
+      end: "21:00"
+      risk_multiplier: 0.7
+  
+  # No trading periods
+  no_trading_periods:
+    - name: "Weekend"
+      days: ["Saturday", "Sunday"]
+    
+    - name: "Major Holidays"
+      dates: ["2024-12-25", "2024-01-01"]
+
+# =============================================================================
+# MARKET CONDITIONS
+# =============================================================================
+market_conditions:
+  # Market stress indicators
+  stress_indicators:
+    vix_threshold: 30.0
+    volume_spike_threshold: 200.0
+    price_gap_threshold: 5.0
+  
+  # Risk adjustments during stress
+  stress_adjustments:
+    position_size_multiplier: 0.5
+    stop_loss_tightening: 0.7
+    take_profit_acceleration: 1.3
+
+# =============================================================================
+# EMERGENCY CONTROLS
+# =============================================================================
+emergency:
+  # Emergency stop triggers
+  emergency_stop_triggers:
+    - name: "Rapid Loss"
+      condition: "loss_in_minutes > 2.0 AND minutes <= 5"
+    
+    - name: "System Latency"
+      condition: "avg_latency_ms > 100"
+    
+    - name: "API Failures"
+      condition: "api_failure_rate > 0.1"
+  
+  # Emergency actions
+  emergency_actions:
+    close_all_positions: true
+    disable_new_trades: true
+    send_alerts: true
+    log_incident: true
+
+# =============================================================================
+# PORTFOLIO HEAT
+# =============================================================================
+portfolio_heat:
+  # Maximum portfolio heat (risk-adjusted exposure)
+  max_portfolio_heat: 100.0
+  
+  # Heat calculation method
+  heat_calculation: "volatility_adjusted"
+  
+  # Heat-based position sizing
+  heat_based_sizing:
+    enabled: true
+    target_heat_per_trade: 20.0
+    max_heat_per_trade: 30.0
+
+# =============================================================================
+# RISK MONITORING
+# =============================================================================
+monitoring:
+  # Risk metrics update frequency
+  update_frequency_seconds: 30
+  
+  # Risk alerts
+  alerts:
+    - metric: "daily_loss_percentage"
+      threshold: 5.0
+      severity: "warning"
+    
+    - metric: "daily_loss_percentage"
+      threshold: 8.0
+      severity: "critical"
+    
+    - metric: "position_count"
+      threshold: 4
+      severity: "warning"
+    
+    - metric: "total_exposure_percentage"
+      threshold: 80.0
+      severity: "warning"
+  
+  # Risk reporting
+  reporting:
+    daily_report: true
+    weekly_report: true
+    monthly_report: true
+    real_time_dashboard: true
+
+# =============================================================================
+# STRATEGY-SPECIFIC LIMITS
+# =============================================================================
+strategy_limits:
+  arbitrage:
+    max_position_size_sol: 15.0
+    max_hold_time_minutes: 30
+    min_profit_threshold: 0.5
+  
+  liquidation:
+    max_position_size_sol: 8.0
+    max_hold_time_minutes: 15
+    min_profit_threshold: 1.0
+  
+  sandwich:
+    max_position_size_sol: 5.0
+    max_hold_time_minutes: 5
+    min_profit_threshold: 0.3
+  
+  frontrun:
+    max_position_size_sol: 6.0
+    max_hold_time_minutes: 10
+    min_profit_threshold: 0.4
+  
+  backrun:
+    max_position_size_sol: 7.0
+    max_hold_time_minutes: 20
+    min_profit_threshold: 0.6
+
+# =============================================================================
+# CIRCUIT BREAKERS
+# =============================================================================
+circuit_breakers:
+  # Trading halt conditions
+  halt_conditions:
+    - name: "Rapid Losses"
+      condition: "losses_last_hour > max_daily_loss * 0.5"
+      duration_minutes: 60
+    
+    - name: "High Error Rate"
+      condition: "error_rate_5min > 0.1"
+      duration_minutes: 30
+    
+    - name: "System Overload"
+      condition: "cpu_usage > 90 OR memory_usage > 90"
+      duration_minutes: 15
+  
+  # Gradual resumption after halt
+  resumption:
+    gradual_restart: true
+    position_size_reduction: 0.5
+    monitoring_period_minutes: 30
+
+# =============================================================================
+# COMPLIANCE & REPORTING
+# =============================================================================
+compliance:
+  # Risk reporting requirements
+  reporting:
+    daily_var_calculation: true
+    stress_testing: true
+    scenario_analysis: true
+  
+  # Audit trail
+  audit:
+    log_all_risk_decisions: true
+    risk_override_approval: true
+    compliance_checks: true
+  
+  # Regulatory limits
+  regulatory:
+    max_leverage_regulatory: 2.0
+    position_reporting_threshold: 50.0
+    large_trader_threshold: 100.0

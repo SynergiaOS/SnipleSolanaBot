@@ -1,0 +1,11 @@
+/home/marcin/windsurf/Projects/TradingBot-Clean/target/contabo/deps/tokio_rustls-2a2d996acba3bf4d.d: /home/marcin/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/tokio-rustls-0.24.1/src/lib.rs /home/marcin/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/tokio-rustls-0.24.1/src/client.rs /home/marcin/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/tokio-rustls-0.24.1/src/common/mod.rs /home/marcin/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/tokio-rustls-0.24.1/src/common/handshake.rs /home/marcin/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/tokio-rustls-0.24.1/src/server.rs
+
+/home/marcin/windsurf/Projects/TradingBot-Clean/target/contabo/deps/libtokio_rustls-2a2d996acba3bf4d.rlib: /home/marcin/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/tokio-rustls-0.24.1/src/lib.rs /home/marcin/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/tokio-rustls-0.24.1/src/client.rs /home/marcin/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/tokio-rustls-0.24.1/src/common/mod.rs /home/marcin/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/tokio-rustls-0.24.1/src/common/handshake.rs /home/marcin/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/tokio-rustls-0.24.1/src/server.rs
+
+/home/marcin/windsurf/Projects/TradingBot-Clean/target/contabo/deps/libtokio_rustls-2a2d996acba3bf4d.rmeta: /home/marcin/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/tokio-rustls-0.24.1/src/lib.rs /home/marcin/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/tokio-rustls-0.24.1/src/client.rs /home/marcin/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/tokio-rustls-0.24.1/src/common/mod.rs /home/marcin/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/tokio-rustls-0.24.1/src/common/handshake.rs /home/marcin/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/tokio-rustls-0.24.1/src/server.rs
+
+/home/marcin/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/tokio-rustls-0.24.1/src/lib.rs:
+/home/marcin/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/tokio-rustls-0.24.1/src/client.rs:
+/home/marcin/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/tokio-rustls-0.24.1/src/common/mod.rs:
+/home/marcin/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/tokio-rustls-0.24.1/src/common/handshake.rs:
+/home/marcin/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/tokio-rustls-0.24.1/src/server.rs:

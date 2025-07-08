@@ -1,0 +1,10 @@
+/home/marcin/windsurf/Projects/TradingBot-Clean/target/contabo/deps/solana_vote_program-2d0f7f40d5598c2d.d: /home/marcin/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/solana-vote-program-1.18.26/src/lib.rs /home/marcin/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/solana-vote-program-1.18.26/src/vote_processor.rs /home/marcin/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/solana-vote-program-1.18.26/src/vote_state/mod.rs /home/marcin/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/solana-vote-program-1.18.26/src/vote_transaction.rs
+
+/home/marcin/windsurf/Projects/TradingBot-Clean/target/contabo/deps/libsolana_vote_program-2d0f7f40d5598c2d.rlib: /home/marcin/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/solana-vote-program-1.18.26/src/lib.rs /home/marcin/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/solana-vote-program-1.18.26/src/vote_processor.rs /home/marcin/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/solana-vote-program-1.18.26/src/vote_state/mod.rs /home/marcin/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/solana-vote-program-1.18.26/src/vote_transaction.rs
+
+/home/marcin/windsurf/Projects/TradingBot-Clean/target/contabo/deps/libsolana_vote_program-2d0f7f40d5598c2d.rmeta: /home/marcin/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/solana-vote-program-1.18.26/src/lib.rs /home/marcin/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/solana-vote-program-1.18.26/src/vote_processor.rs /home/marcin/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/solana-vote-program-1.18.26/src/vote_state/mod.rs /home/marcin/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/solana-vote-program-1.18.26/src/vote_transaction.rs
+
+/home/marcin/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/solana-vote-program-1.18.26/src/lib.rs:
+/home/marcin/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/solana-vote-program-1.18.26/src/vote_processor.rs:
+/home/marcin/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/solana-vote-program-1.18.26/src/vote_state/mod.rs:
+/home/marcin/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/solana-vote-program-1.18.26/src/vote_transaction.rs:

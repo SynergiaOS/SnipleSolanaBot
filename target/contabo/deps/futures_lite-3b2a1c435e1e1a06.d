@@ -1,0 +1,11 @@
+/home/marcin/windsurf/Projects/TradingBot-Clean/target/contabo/deps/futures_lite-3b2a1c435e1e1a06.d: /home/marcin/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/futures-lite-1.13.0/src/lib.rs /home/marcin/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/futures-lite-1.13.0/src/future.rs /home/marcin/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/futures-lite-1.13.0/src/prelude.rs /home/marcin/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/futures-lite-1.13.0/src/stream.rs /home/marcin/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/futures-lite-1.13.0/src/io.rs
+
+/home/marcin/windsurf/Projects/TradingBot-Clean/target/contabo/deps/libfutures_lite-3b2a1c435e1e1a06.rlib: /home/marcin/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/futures-lite-1.13.0/src/lib.rs /home/marcin/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/futures-lite-1.13.0/src/future.rs /home/marcin/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/futures-lite-1.13.0/src/prelude.rs /home/marcin/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/futures-lite-1.13.0/src/stream.rs /home/marcin/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/futures-lite-1.13.0/src/io.rs
+
+/home/marcin/windsurf/Projects/TradingBot-Clean/target/contabo/deps/libfutures_lite-3b2a1c435e1e1a06.rmeta: /home/marcin/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/futures-lite-1.13.0/src/lib.rs /home/marcin/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/futures-lite-1.13.0/src/future.rs /home/marcin/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/futures-lite-1.13.0/src/prelude.rs /home/marcin/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/futures-lite-1.13.0/src/stream.rs /home/marcin/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/futures-lite-1.13.0/src/io.rs
+
+/home/marcin/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/futures-lite-1.13.0/src/lib.rs:
+/home/marcin/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/futures-lite-1.13.0/src/future.rs:
+/home/marcin/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/futures-lite-1.13.0/src/prelude.rs:
+/home/marcin/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/futures-lite-1.13.0/src/stream.rs:
+/home/marcin/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/futures-lite-1.13.0/src/io.rs:

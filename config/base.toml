@@ -1,0 +1,51 @@
+# THE OVERMIND PROTOCOL - Base Configuration
+# SnipleSolanaBot Enhanced Configuration
+
+# RPC Endpoints
+rpc_endpoints = [
+    "https://api.mainnet-beta.solana.com",
+    "https://solana-api.projectserum.com"
+]
+
+# Jito Configuration
+jito_block_engine_url = "https://mainnet.block-engine.jito.wtf"
+
+# DEX Aggregators
+dex_aggregators = [
+    "Jupiter",
+    "Raydium", 
+    "Orca"
+]
+
+[risk_limits]
+max_position_size_usd = 1000.0
+max_daily_loss_percent = 5.0
+max_slippage_bps = 100
+max_leverage = 1.0
+stop_loss_percent = 10.0
+take_profit_percent = 20.0
+
+[trading_config]
+trading_mode = "paper"
+default_trade_size_usd = 100.0
+min_trade_size_usd = 10.0
+max_trade_size_usd = 1000.0
+auto_compound = false
+compound_threshold_usd = 1000.0
+preferred_dexes = ["Jupiter", "Raydium", "Orca"]
+
+[security_config]
+encryption_enabled = true
+vault_enabled = true
+multi_sig_required = false
+ip_whitelist = []
+rate_limit_per_minute = 60
+session_timeout_minutes = 30
+
+[performance_config]
+max_concurrent_trades = 10
+rpc_timeout_ms = 5000
+cache_ttl_seconds = 5
+batch_size = 100
+worker_threads = 4
+memory_limit_mb = 2048

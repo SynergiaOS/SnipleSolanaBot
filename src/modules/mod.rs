@@ -92,6 +92,15 @@ pub mod portfolio_rebalancer;
 pub mod profit_manager;
 pub mod resource_manager;
 
+// ============================================================================
+// SNIPLE SOLANA BOT ENHANCED MODULES
+// ============================================================================
+pub mod cluster_orchestrator;
+pub mod vault;
+pub mod jito_bundler;
+pub mod dex_aggregator;
+pub mod sniple_config;
+
 // Re-export main types for easier access
 // Note: Exports commented out to avoid unused import warnings in skeleton
 // pub use data_ingestor::DataIngestor;

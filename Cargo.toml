@@ -103,7 +103,14 @@ redis = { version = "0.24", features = ["tokio-comp", "connection-manager", "str
 # THE OVERMIND PROTOCOL - Configuration & Scripting
 toml = "0.8"
 rhai = "1.17"
+config = "0.14"
 # qdrant-client = "1.11.0" # Temporarily disabled due to dependency conflicts
+
+# THE OVERMIND PROTOCOL - SnipleSolanaBot Enhanced Security & Performance
+aes-gcm = "0.10"
+generic-array = "0.14"
+backoff = "0.4"
+moka = { version = "0.12", features = ["future"] }
 
 [dev-dependencies]
 # Testing framework

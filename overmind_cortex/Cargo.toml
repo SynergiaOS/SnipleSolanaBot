@@ -1,0 +1,34 @@
+[package]
+name = "overmind_cortex"
+version = "0.1.0"
+edition = "2021"
+authors = ["THE OVERMIND PROTOCOL Team"]
+description = "THE OVERMIND PROTOCOL v4.4 'GEOHOT CORE' - Cortex Core with Hotz Philosophy"
+license = "MIT"
+
+[dependencies]
+# Chimera Client Integration
+chimera_client = { path = "../chimera_client", features = ["geo_encryption"] }
+
+# Minimal Solana SDK (no default features for bloat control)
+solana-sdk = { version = "1.18", default-features = false, features = ["program", "full"] }
+
+# Core async runtime (minimal features only)
+tokio = { version = "1.35", features = ["rt-multi-thread", "macros"] }
+
+# Bloat Guard - Custom crate for dependency monitoring
+# bloat_guard = "0.9"  # Will be implemented later
+
+# AMD ROCm HIP Integration (conditional) - HOTZ PHILOSOPHY: Hardware Sovereignty
+# Using mock implementation for now - real HIP integration requires system libraries
+
+[features]
+default = []
+geo_hot = []          # AMD hardware acceleration (mock implementation)
+amd_chimera = ["geo_hot"]  # Full AMD-Chimera project
+
+[lib]
+name = "overmind_cortex"
+path = "src/lib.rs"
+
+# Profiles moved to workspace root per Cargo requirements

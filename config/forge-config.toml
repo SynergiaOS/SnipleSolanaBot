@@ -1,0 +1,237 @@
+# OPERACJA "FORGE" - Configuration
+# 
+# Konfiguracja atomowej kuźni inteligencji
+# TensorZero integration + artifact management
+
+[forge]
+# Główne ustawienia FORGE
+enabled = true
+version = "1.0.0"
+environment = "production"
+
+[tensorzero]
+# TensorZero Gateway configuration
+gateway_url = "http://localhost:3000"
+clickhouse_url = "http://localhost:8123/tensorzero"
+config_file = "config/tensorzero.toml"
+
+# Model configuration
+default_model = "anthropic::claude-3-7-sonnet-20250219"
+fallback_models = [
+    "openai::gpt-4o",
+    "anthropic::claude-3-5-haiku-20241022",
+    "openai::gpt-4o-mini"
+]
+
+# Request settings
+timeout_seconds = 30
+max_retries = 3
+enable_observability = true
+
+# Cost optimization
+enable_cost_optimization = true
+max_cost_per_request = 0.10  # USD
+preferred_providers = ["anthropic", "openai"]
+
+[compiler]
+# Strategy compilation settings
+compiler_path = "tzc"  # TensorZero compiler
+target_arch = "x86_64-unknown-linux-gnu"
+optimization_level = "release"
+output_dir = "./artifacts"
+
+# Hardware optimization
+enable_lto = true
+enable_simd = true
+cpu_features = ["avx2", "fma", "sse4.2"]
+debug_symbols = false
+
+# Compilation timeout
+timeout_seconds = 300
+
+[artifact_storage]
+# Artifact repository configuration
+storage_type = "s3"  # Options: "local", "s3", "gcs", "azure"
+bucket_name = "overmind-forge-artifacts"
+region = "us-east-1"
+
+# Local storage (fallback)
+local_path = "./artifacts"
+
+# Versioning
+enable_versioning = true
+retention_days = 90
+max_versions_per_strategy = 10
+
+[evolution]
+# Evolution parameters
+generation_interval_hours = 6
+population_size = 10
+survival_threshold = 0.6
+mutation_rate = 0.1
+crossover_rate = 0.3
+
+# Performance targets
+target_improvement_threshold = 0.05  # 5% minimum improvement
+max_generations_without_improvement = 5
+
+[safety]
+# Safety parameters
+max_loss_threshold = 0.05  # 5% max loss for new strategy
+testing_period_hours = 24
+min_successful_trades = 10
+circuit_breaker_threshold = 0.15  # 15% loss triggers circuit breaker
+
+# Formal verification
+enable_formal_verification = true
+verification_timeout_seconds = 120
+require_verification_pass = true
+
+[hot_loading]
+# Runtime strategy swapping
+max_load_time_ms = 5000
+health_check_interval_ms = 1000
+max_consecutive_failures = 3
+enable_sandbox = true
+memory_limit_mb = 256
+
+# Strategy lifecycle
+strategy_warmup_time_ms = 1000
+strategy_cooldown_time_ms = 500
+
+[monitoring]
+# Monitoring and observability
+enable_metrics = true
+metrics_interval_seconds = 10
+enable_tracing = true
+log_level = "info"
+
+# Performance monitoring
+track_compilation_time = true
+track_execution_time = true
+track_memory_usage = true
+
+# Alerting thresholds
+compilation_failure_threshold = 0.1  # 10% failure rate
+execution_latency_threshold_ms = 100
+memory_usage_threshold_mb = 512
+
+[dsl_templates]
+# DSL template configuration
+template_dir = "src/forge/templates"
+enable_template_validation = true
+custom_template_path = "strategies/custom_templates"
+
+# Template categories
+[dsl_templates.momentum]
+file = "momentum_strategy.dsl"
+description = "Trend following strategies"
+risk_level = 3
+expected_markets = ["bull", "trending"]
+
+[dsl_templates.mean_reversion]
+file = "mean_reversion_strategy.dsl"
+description = "Counter-trend strategies"
+risk_level = 2
+expected_markets = ["range_bound", "sideways"]
+
+[dsl_templates.arbitrage]
+file = "arbitrage_strategy.dsl"
+description = "Price difference exploitation"
+risk_level = 1
+expected_markets = ["any"]
+
+[dsl_templates.market_making]
+file = "market_making_strategy.dsl"
+description = "Liquidity provision strategies"
+risk_level = 2
+expected_markets = ["stable", "low_volatility"]
+
+[dsl_templates.breakout]
+file = "breakout_strategy.dsl"
+description = "Pattern breakout strategies"
+risk_level = 4
+expected_markets = ["volatile", "news_driven"]
+
+[ai_models]
+# AI model specifications for strategy generation
+[ai_models.strategy_generator]
+model = "anthropic::claude-3-7-sonnet-20250219"
+temperature = 0.7
+max_tokens = 4000
+system_prompt_file = "prompts/strategy_generation.txt"
+
+[ai_models.risk_assessor]
+model = "openai::gpt-4o"
+temperature = 0.3
+max_tokens = 2000
+system_prompt_file = "prompts/risk_assessment.txt"
+
+[ai_models.performance_analyzer]
+model = "anthropic::claude-3-5-haiku-20241022"
+temperature = 0.5
+max_tokens = 3000
+system_prompt_file = "prompts/performance_analysis.txt"
+
+[deployment]
+# Deployment configuration
+environment = "production"
+deployment_mode = "rolling"  # Options: "blue_green", "rolling", "canary"
+rollback_on_failure = true
+max_deployment_time_minutes = 10
+
+# Health checks during deployment
+health_check_retries = 5
+health_check_interval_seconds = 10
+health_check_timeout_seconds = 30
+
+[security]
+# Security configuration
+enable_signature_verification = true
+require_code_signing = true
+allowed_compilers = ["tzc"]
+sandbox_execution = true
+
+# Access control
+require_approval_for_production = true
+max_strategy_size_mb = 50
+allowed_file_extensions = [".so", ".dll", ".dylib"]
+
+[performance]
+# Performance optimization
+enable_performance_profiling = true
+profile_compilation = true
+profile_execution = true
+benchmark_new_strategies = true
+
+# Resource limits
+max_cpu_usage_percent = 80
+max_memory_usage_mb = 1024
+max_compilation_jobs = 4
+
+[logging]
+# Logging configuration
+log_file = "logs/forge.log"
+log_rotation = "daily"
+log_retention_days = 30
+log_format = "json"
+
+# Log levels per component
+[logging.levels]
+forge = "info"
+tensorzero = "debug"
+compiler = "info"
+hot_loader = "warn"
+evolution = "info"
+
+[experimental]
+# Experimental features
+enable_quantum_optimization = false
+enable_neural_architecture_search = false
+enable_automated_testing = true
+enable_continuous_learning = true
+
+# Research features
+enable_strategy_crossover = true
+enable_genetic_programming = false
+enable_reinforcement_learning = false

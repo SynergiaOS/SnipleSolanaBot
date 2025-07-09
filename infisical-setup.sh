@@ -25,17 +25,21 @@ fi
 echo "🚀 Initializing Infisical in project..."
 infisical init
 
-# Create .infisical.json configuration
+# Create .infisical.json configuration with user's project ID
 cat > .infisical.json << EOF
 {
-  "workspaceId": "5ee5b660-e4dc-4676-8e1d-a2b69b72ce36",
+  "workspaceId": "73c2f3cb-c922-4a46-a333-7b96fbc6301a",
   "environments": [
     {
       "name": "development",
       "slug": "dev"
     },
     {
-      "name": "production", 
+      "name": "staging",
+      "slug": "staging"
+    },
+    {
+      "name": "production",
       "slug": "prod"
     }
   ]
@@ -44,7 +48,11 @@ EOF
 
 echo "✅ Infisical setup complete!"
 echo ""
-echo "Next steps:"
-echo "1. Add secrets to Infisical dashboard"
-echo "2. Update .env to use: infisical run -- cargo run"
-echo "3. Remove sensitive data from .env file"
+echo "🔐 OPERACJA 'VAULT' - Next steps:"
+echo "1. Add secrets to Infisical dashboard: https://app.infisical.com/project/73c2f3cb-c922-4a46-a333-7b96fbc6301a"
+echo "2. Run migration script: ./migrate-secrets-to-infisical.sh"
+echo "3. Test with: infisical run --env=dev -- cargo check"
+echo "4. Start secure: ./start-overmind-secure.sh"
+echo ""
+echo "🎯 Project ID: 73c2f3cb-c922-4a46-a333-7b96fbc6301a"
+echo "🌍 Environments: dev, staging, prod"

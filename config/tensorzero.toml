@@ -1,0 +1,227 @@
+# TensorZero Configuration for THE OVERMIND PROTOCOL
+# 
+# Unified LLM Gateway configuration
+# Production-ready setup for strategy generation
+
+[gateway]
+# Gateway server configuration
+bind = "0.0.0.0:3000"
+workers = 4
+max_connections = 1000
+request_timeout = "30s"
+keepalive_timeout = "60s"
+
+[database]
+# ClickHouse configuration for observability
+url = "http://localhost:8123/tensorzero"
+username = "default"
+password = ""
+max_connections = 10
+connection_timeout = "10s"
+query_timeout = "30s"
+
+# Database schema
+database_name = "tensorzero"
+inference_table = "inference"
+feedback_table = "feedback"
+episode_table = "episode"
+
+[models]
+# Anthropic Claude models
+[models.claude-3-7-sonnet]
+provider = "anthropic"
+model = "claude-3-7-sonnet-20250219"
+max_tokens = 4000
+temperature = 0.7
+routing_priority = 1
+
+[models.claude-3-5-haiku]
+provider = "anthropic"
+model = "claude-3-5-haiku-20241022"
+max_tokens = 2000
+temperature = 0.5
+routing_priority = 3
+
+# OpenAI models
+[models.gpt-4o]
+provider = "openai"
+model = "gpt-4o"
+max_tokens = 4000
+temperature = 0.7
+routing_priority = 2
+
+[models.gpt-4o-mini]
+provider = "openai"
+model = "gpt-4o-mini"
+max_tokens = 2000
+temperature = 0.5
+routing_priority = 4
+
+[providers]
+# Anthropic configuration
+[providers.anthropic]
+api_key_env = "ANTHROPIC_API_KEY"
+base_url = "https://api.anthropic.com"
+max_requests_per_minute = 1000
+max_tokens_per_minute = 100000
+
+# OpenAI configuration
+[providers.openai]
+api_key_env = "OPENAI_API_KEY"
+base_url = "https://api.openai.com/v1"
+max_requests_per_minute = 3000
+max_tokens_per_minute = 150000
+
+[functions]
+# Strategy generation function
+[functions.strategy_generation]
+description = "Generate trading strategy DSL from historical performance data"
+models = ["claude-3-7-sonnet", "gpt-4o"]
+routing = "round_robin"
+fallback_models = ["claude-3-5-haiku", "gpt-4o-mini"]
+
+[functions.strategy_generation.variants]
+[functions.strategy_generation.variants.momentum_focused]
+model = "claude-3-7-sonnet"
+temperature = 0.7
+system_message = """You are an expert quantitative trading strategy developer specializing in momentum strategies. 
+Generate high-performance trading strategy DSL code optimized for momentum trading patterns.
+Focus on trend following, breakout detection, and volume analysis."""
+
+[functions.strategy_generation.variants.risk_conservative]
+model = "gpt-4o"
+temperature = 0.3
+system_message = """You are a conservative risk management expert for trading strategies.
+Generate trading strategy DSL code with emphasis on risk management, capital preservation, and stable returns.
+Prioritize safety over aggressive returns."""
+
+# Risk assessment function
+[functions.risk_assessment]
+description = "Assess risk parameters for trading strategies"
+models = ["gpt-4o", "claude-3-7-sonnet"]
+routing = "lowest_latency"
+
+[functions.risk_assessment.variants]
+[functions.risk_assessment.variants.comprehensive]
+model = "gpt-4o"
+temperature = 0.3
+system_message = """You are a quantitative risk analyst. Analyze trading strategy parameters and provide comprehensive risk assessment including VaR, maximum drawdown, correlation analysis, and stress testing scenarios."""
+
+# Performance analysis function
+[functions.performance_analysis]
+description = "Analyze strategy performance and suggest improvements"
+models = ["claude-3-5-haiku", "gpt-4o-mini"]
+routing = "cost_optimized"
+
+[functions.performance_analysis.variants]
+[functions.performance_analysis.variants.optimization_focused]
+model = "claude-3-5-haiku"
+temperature = 0.5
+system_message = """You are a performance optimization expert. Analyze trading strategy performance metrics and suggest specific improvements to increase returns while maintaining risk parameters."""
+
+[routing]
+# Routing configuration
+default_routing = "round_robin"
+enable_fallbacks = true
+fallback_timeout = "10s"
+max_retries = 3
+
+# Cost optimization
+enable_cost_optimization = true
+cost_threshold_per_request = 0.10  # USD
+prefer_cheaper_models = true
+
+# Performance optimization
+enable_caching = true
+cache_ttl = "1h"
+enable_request_deduplication = true
+
+[observability]
+# Metrics and monitoring
+enable_metrics = true
+metrics_endpoint = "/metrics"
+metrics_format = "prometheus"
+
+# Logging
+log_level = "info"
+log_format = "json"
+enable_request_logging = true
+enable_response_logging = false  # Disable for sensitive data
+
+# Tracing
+enable_tracing = true
+tracing_endpoint = "http://localhost:14268/api/traces"
+tracing_service_name = "tensorzero-overmind"
+
+[security]
+# API security
+enable_api_key_auth = true
+api_key_header = "X-API-Key"
+allowed_origins = ["http://localhost:8080", "https://overmind.trading"]
+
+# Rate limiting
+enable_rate_limiting = true
+requests_per_minute = 1000
+burst_size = 100
+
+# Content filtering
+enable_content_filtering = true
+max_request_size = "10MB"
+max_response_size = "10MB"
+
+[optimization]
+# Model optimization
+enable_model_optimization = true
+optimization_interval = "1h"
+min_samples_for_optimization = 100
+
+# A/B testing
+enable_ab_testing = true
+ab_test_traffic_split = 0.1  # 10% for experiments
+ab_test_duration = "7d"
+
+# Fine-tuning
+enable_fine_tuning = false  # Disabled for now
+fine_tuning_interval = "24h"
+min_samples_for_fine_tuning = 1000
+
+[experimental]
+# Experimental features
+enable_streaming = true
+enable_function_calling = true
+enable_vision_models = false
+enable_multimodal = false
+
+# Advanced routing
+enable_semantic_routing = false
+enable_performance_routing = true
+enable_cost_aware_routing = true
+
+[alerts]
+# System alerts
+[alerts.high_error_rate]
+condition = "error_rate > 0.05"  # 5%
+action = "email"
+recipients = ["ops@overmind.trading"]
+
+[alerts.high_latency]
+condition = "p95_latency > 5000"  # 5 seconds
+action = "slack"
+channel = "#overmind-alerts"
+
+[alerts.cost_threshold]
+condition = "hourly_cost > 100"  # $100/hour
+action = "email"
+recipients = ["finance@overmind.trading"]
+
+[backup]
+# Backup and disaster recovery
+enable_backup = true
+backup_interval = "6h"
+backup_retention = "30d"
+backup_location = "s3://overmind-tensorzero-backups"
+
+# Failover
+enable_failover = true
+failover_timeout = "30s"
+backup_providers = ["openai", "anthropic"]

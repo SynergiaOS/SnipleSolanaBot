@@ -1,0 +1,82 @@
+# THE OVERMIND PROTOCOL - Git Ignore Rules
+
+# Rust
+/target/
+Cargo.lock
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+logs/
+
+# Environment files
+.env
+.env.local
+.env.development
+.env.production
+.env.staging
+
+# Temporary files
+*.tmp
+
+# Build artifacts
+/dist/
+/build/
+
+# Security - backup directories
+env-backups/
+
+# Compiled artifacts
+artifacts/compiled/
+*.so
+*.dll
+*.dylib
+
+# Test artifacts
+test-results/
+coverage/
+
+# Cache directories
+.cache/
+node_modules/
+
+# Secrets (encrypted files are OK)
+secrets/*.key
+secrets/*.pem
+!secrets/*.enc
+!secrets/metadata.json
+
+# Wallets (keep encrypted/demo only)
+wallets/*.json
+!wallets/*demo*.json
+!wallets/*test*.json
+
+# Docker
+.dockerignore
+
+# Monitoring
+prometheus_data/
+grafana_data/
+
+# AI/ML artifacts
+models/
+training_data/
+*.pkl
+*.model
+
+# Blockchain
+.anchor/
+.solana/
+
+# Kestra
+kestra/data/
+kestra/logs/

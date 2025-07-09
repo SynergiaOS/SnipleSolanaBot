@@ -11,6 +11,7 @@ mod config;
 mod modules;
 mod monitoring;
 mod overmind;
+mod security;
 
 use anyhow::Result;
 use axum::{extract::{Json as ExtractJson, State}, http::StatusCode, response::Json, routing::{get, post}, Router};
@@ -137,10 +138,21 @@ async fn main() -> Result<()> {
     info!("🚀 THE OVERMIND PROTOCOL v4.1 'MONOLITH' - Starting");
     info!("📊 Log Level: {}", log_level);
     info!("🎯 All-Rust Autonomous AI Trading System for Solana");
+    info!("🔐 OPERACJA 'VAULT' - Secure secrets management enabled");
 
-    // Load configuration
-    let config = Arc::new(Config::from_env()?);
-    info!("✅ Configuration loaded");
+    // Load configuration from Infisical with fallback to environment
+    let config = Arc::new(
+        match Config::from_infisical().await {
+            Ok(config) => {
+                info!("✅ Configuration loaded from Infisical");
+                config
+            }
+            Err(e) => {
+                warn!("⚠️ Failed to load from Infisical, falling back to environment: {}", e);
+                Config::from_env()?
+            }
+        }
+    );
     info!("📊 Trading Mode: {}", config.trading_mode_str());
     info!(
         "🧠 AI Enabled: {}",

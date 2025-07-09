@@ -1,0 +1,218 @@
+# PROTOKÓŁ WALIDACJI BOJOWEJ - KONFIGURACJA
+# Konfiguracja dla Fazy 12 Pre-Flight Validation
+
+[steady_swarm]
+# Operacja STEADY SWARM - Test stabilności roju
+duration_hours = 24                    # 24 godziny monitoringu
+max_deviation_percent = 5.0            # Maksymalne odchylenie 5%
+monitoring_interval_seconds = 60       # Sprawdzanie co minutę
+freeze_mutations = true                # Zamrożenie mutacji genetycznych
+
+[heartbeat]
+# Operacja HEARTBEAT - Test responsywności
+duration_minutes = 60                  # 1 godzina testów
+check_interval_seconds = 5             # Sprawdzanie co 5 sekund
+max_latency_ms = 50                    # Maksymalna latencja 50ms
+required_success_rate = 1.0            # 100% pomyślnych odpowiedzi
+
+# Endpointy do testowania
+endpoints = [
+    "http://localhost:8080/health",
+    "http://localhost:8080/overmind/status",
+    "http://localhost:8080/overmind/cortex",
+    "http://localhost:8080/overmind/swarm",
+    "http://localhost:8080/overmind/knowledge",
+    "http://localhost:8080/metrics",
+    "http://localhost:8080/ready",
+    "http://localhost:8080/live"
+]
+
+[wildfire_drill]
+# Operacja WILDFIRE DRILL - Test protokołu Firebreak
+max_acceptable_loss_percent = 10.0     # Maksymalne straty 10%
+simulation_duration_minutes = 30       # 30 minut symulacji
+
+# Katastrofalne mutacje do testowania
+[[wildfire_drill.catastrophic_mutations]]
+name = "Portfolio Overallocation"
+target_config = "risk_thresholds.max_position_size"
+dangerous_value = 1.0                  # 100% portfolio w jednej pozycji
+expected_block = true                  # MutationGuard powinien zablokować
+
+[[wildfire_drill.catastrophic_mutations]]
+name = "Zero Stop Loss"
+target_config = "risk_thresholds.stop_loss"
+dangerous_value = 0.0                  # Brak stop loss
+expected_block = true
+
+[[wildfire_drill.catastrophic_mutations]]
+name = "Extreme Leverage"
+target_config = "trading_params.max_leverage"
+dangerous_value = 10.0                 # 10x dźwignia
+expected_block = true
+
+[[wildfire_drill.catastrophic_mutations]]
+name = "No Risk Management"
+target_config = "risk_thresholds.max_daily_loss"
+dangerous_value = 1.0                  # 100% dziennych strat
+expected_block = true
+
+[[wildfire_drill.catastrophic_mutations]]
+name = "Infinite Position Size"
+target_config = "trading_params.position_size_multiplier"
+dangerous_value = 100.0                # 100x mnożnik pozycji
+expected_block = true
+
+# Scenariusze czarnego łabędzia
+[[wildfire_drill.black_swan_scenarios]]
+name = "Flash Crash 50%"
+price_drop_percent = 50.0              # Spadek o 50%
+volatility_spike = 5.0                 # 5x wzrost volatility
+duration_seconds = 300                 # 5 minut
+
+[[wildfire_drill.black_swan_scenarios]]
+name = "Market Meltdown 80%"
+price_drop_percent = 80.0              # Spadek o 80%
+volatility_spike = 10.0                # 10x wzrost volatility
+duration_seconds = 600                 # 10 minut
+
+[[wildfire_drill.black_swan_scenarios]]
+name = "Network Congestion Crisis"
+price_drop_percent = 20.0              # Spadek o 20%
+volatility_spike = 3.0                 # 3x wzrost volatility
+duration_seconds = 1800                # 30 minut
+
+[[wildfire_drill.black_swan_scenarios]]
+name = "Liquidity Evaporation"
+price_drop_percent = 60.0              # Spadek o 60%
+volatility_spike = 8.0                 # 8x wzrost volatility
+duration_seconds = 900                 # 15 minut
+
+[[wildfire_drill.black_swan_scenarios]]
+name = "Exchange Outage Cascade"
+price_drop_percent = 35.0              # Spadek o 35%
+volatility_spike = 4.0                 # 4x wzrost volatility
+duration_seconds = 2700                # 45 minut
+
+# =============================================================================
+# KONFIGURACJA MONITORINGU
+# =============================================================================
+
+[monitoring]
+# Metryki do zbierania
+collect_cpu_metrics = true
+collect_memory_metrics = true
+collect_network_metrics = true
+collect_disk_metrics = true
+
+# Progi alertów
+cpu_alert_threshold = 80.0             # Alert przy CPU > 80%
+memory_alert_threshold = 85.0          # Alert przy RAM > 85%
+disk_alert_threshold = 90.0            # Alert przy dysku > 90%
+
+# Interwały zbierania metryk
+metrics_collection_interval_seconds = 30
+health_check_interval_seconds = 15
+stability_check_interval_seconds = 60
+
+[logging]
+# Konfiguracja logowania
+log_level = "info"
+log_to_file = true
+log_file_path = "logs/validation_protocol.log"
+log_rotation_size_mb = 100
+max_log_files = 10
+
+# Szczegółowość logowania
+log_operation_progress = true
+log_metrics_details = true
+log_test_results = true
+log_error_details = true
+
+[alerts]
+# Konfiguracja alertów
+enable_email_alerts = false
+enable_slack_alerts = false
+enable_webhook_alerts = true
+
+# Webhook dla alertów
+webhook_url = "http://localhost:9090/alerts"
+webhook_timeout_seconds = 10
+
+# Progi alertów krytycznych
+critical_failure_threshold = 3         # 3 nieudane testy = alert krytyczny
+warning_failure_threshold = 1          # 1 nieudany test = ostrzeżenie
+
+[performance]
+# Oczekiwane progi wydajności
+expected_max_response_time_ms = 50
+expected_min_throughput_ops_sec = 100
+expected_max_error_rate_percent = 1.0
+expected_min_uptime_percent = 99.9
+
+# Tolerancje dla testów
+response_time_tolerance_percent = 20.0  # 20% tolerancja dla czasów odpowiedzi
+throughput_tolerance_percent = 15.0     # 15% tolerancja dla przepustowości
+error_rate_tolerance_percent = 5.0      # 5% tolerancja dla błędów
+
+[security]
+# Konfiguracja bezpieczeństwa
+enable_mutation_guard = true
+enable_kill_switch = true
+enable_firebreak_protocol = true
+
+# Progi bezpieczeństwa
+max_acceptable_risk_score = 0.3        # Maksymalny akceptowalny risk score
+min_required_safety_score = 0.8        # Minimalny wymagany safety score
+emergency_stop_loss_threshold = 0.15   # 15% strat = emergency stop
+
+# Timeouty bezpieczeństwa
+mutation_guard_timeout_seconds = 30
+kill_switch_activation_timeout_ms = 100
+firebreak_response_timeout_ms = 500
+
+[simulation]
+# Konfiguracja symulacji
+enable_dry_run_mode = false
+simulation_speed_multiplier = 1.0      # 1.0 = czas rzeczywisty
+use_historical_data = true
+historical_data_days = 30              # 30 dni danych historycznych
+
+# Parametry symulacji rynku
+market_volatility_base = 0.02          # 2% bazowa volatility
+market_trend_strength = 0.1            # 10% siła trendu
+market_noise_level = 0.05              # 5% poziom szumu
+
+[reporting]
+# Konfiguracja raportowania
+generate_detailed_report = true
+include_performance_charts = true
+include_stability_analysis = true
+include_security_assessment = true
+
+# Format raportów
+report_format = "json"                 # json, yaml, toml
+save_reports_to_file = true
+reports_directory = "reports/validation"
+
+# Automatyczne raportowanie
+auto_send_reports = false
+report_recipients = []
+report_schedule = "after_completion"
+
+[advanced]
+# Zaawansowane opcje
+enable_machine_learning_analysis = false
+enable_predictive_modeling = false
+enable_anomaly_detection = true
+
+# Parametry analizy
+anomaly_detection_sensitivity = 0.8
+trend_analysis_window_hours = 24
+pattern_recognition_enabled = false
+
+# Optymalizacje wydajności
+parallel_test_execution = true
+max_concurrent_tests = 4
+test_timeout_minutes = 60
+memory_optimization_enabled = true

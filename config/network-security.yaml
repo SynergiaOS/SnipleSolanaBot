@@ -1,0 +1,148 @@
+# THE OVERMIND PROTOCOL - Network Security Configuration
+# VPC: vpc-05f61f843ed60555e, Account: 962364259018, CIDR: 192.168.0.0/16
+
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: overmind-network-config
+  namespace: overmind-protocol
+data:
+  # VPC Configuration
+  vpc_id: "vpc-05f61f843ed60555e"
+  cidr_block: "192.168.0.0/16"
+  account_id: "962364259018"
+  region: "us-east-1"
+  
+  # Subnet Configuration
+  private_subnet_cidr: "192.168.1.0/24"
+  public_subnet_cidr: "192.168.2.0/24"
+  database_subnet_cidr: "192.168.3.0/24"
+  
+  # Security Groups
+  overmind_sg_id: "sg-overmind-protocol"
+  dragonflydb_sg_id: "sg-dragonflydb-cache"
+  infisical_sg_id: "sg-infisical-client"
+  
+  # Network ACLs
+  allow_internal_traffic: "true"
+  allow_https_outbound: "true"
+  allow_ssh_from_bastion: "true"
+  
+  # DragonflyDB Network Settings
+  dragonflydb_port: "6379"
+  dragonflydb_ssl: "true"
+  dragonflydb_vpc_endpoint: "true"
+  
+  # Infisical Network Settings
+  infisical_api_endpoint: "https://app.infisical.com/api"
+  infisical_ssl_verify: "true"
+  infisical_timeout: "30"
+
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: overmind-network-secrets
+  namespace: overmind-protocol
+type: Opaque
+data:
+  # Base64 encoded network secrets
+  dragonflydb_password: ""  # To be filled from DragonflyDB dashboard
+  vpc_peering_key: ""       # VPC peering authentication key
+  ssl_cert: ""              # SSL certificate for secure communication
+  ssl_key: ""               # SSL private key
+
+---
+# Network Policy for THE OVERMIND PROTOCOL
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: overmind-network-policy
+  namespace: overmind-protocol
+spec:
+  podSelector:
+    matchLabels:
+      app: overmind-protocol
+  policyTypes:
+  - Ingress
+  - Egress
+  
+  # Ingress Rules
+  ingress:
+  - from:
+    - namespaceSelector:
+        matchLabels:
+          name: overmind-protocol
+    - podSelector:
+        matchLabels:
+          app: overmind-monitoring
+    ports:
+    - protocol: TCP
+      port: 8080  # THE OVERMIND PROTOCOL API
+    - protocol: TCP
+      port: 9090  # Prometheus metrics
+  
+  # Egress Rules
+  egress:
+  - to: []  # Allow all outbound (for API calls)
+    ports:
+    - protocol: TCP
+      port: 443  # HTTPS
+    - protocol: TCP
+      port: 6379  # DragonflyDB
+  
+  # Internal communication
+  - to:
+    - podSelector:
+        matchLabels:
+          app: dragonflydb-cache
+    ports:
+    - protocol: TCP
+      port: 6379
+
+---
+# Service for DragonflyDB Cache
+apiVersion: v1
+kind: Service
+metadata:
+  name: dragonflydb-cache-service
+  namespace: overmind-protocol
+  annotations:
+    service.beta.kubernetes.io/aws-load-balancer-type: "nlb"
+    service.beta.kubernetes.io/aws-load-balancer-internal: "true"
+    service.beta.kubernetes.io/aws-load-balancer-subnets: "subnet-private"
+spec:
+  type: LoadBalancer
+  selector:
+    app: dragonflydb-cache
+  ports:
+  - name: redis
+    port: 6379
+    targetPort: 6379
+    protocol: TCP
+  sessionAffinity: ClientIP
+
+---
+# Service for THE OVERMIND PROTOCOL
+apiVersion: v1
+kind: Service
+metadata:
+  name: overmind-protocol-service
+  namespace: overmind-protocol
+  annotations:
+    service.beta.kubernetes.io/aws-load-balancer-type: "nlb"
+    service.beta.kubernetes.io/aws-load-balancer-internal: "true"
+spec:
+  type: LoadBalancer
+  selector:
+    app: overmind-protocol
+  ports:
+  - name: api
+    port: 8080
+    targetPort: 8080
+    protocol: TCP
+  - name: metrics
+    port: 9090
+    targetPort: 9090
+    protocol: TCP
+  sessionAffinity: ClientIP

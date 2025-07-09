@@ -13,6 +13,10 @@ pub mod knowledge_graph;
 pub mod optimization;
 pub mod evolution;
 pub mod ai_engine;
+pub mod leaderboard;
+pub mod genetic_modifier;
+pub mod mutation_guard;
+pub mod validation_protocol;
 
 use anyhow::Result;
 

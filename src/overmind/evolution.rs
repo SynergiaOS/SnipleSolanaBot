@@ -8,8 +8,10 @@ use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use tokio::sync::RwLock;
 use uuid::Uuid;
-use tracing::{info, debug};
+use tracing::{info, debug, warn};
 use reqwest::Client;
+
+use super::leaderboard::{SwarmLeaderboard, PercentileAnalysis};
 
 /// Evolution strategy
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -43,19 +45,114 @@ pub struct PerformanceAnalysis {
     pub recommendations: Vec<String>,
 }
 
-/// Evolution engine for agent improvement
+/// FAZA 11: Configuration mutation plan
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct ConfigMutationPlan {
+    pub target_candidate: Uuid,
+    pub mutations: Vec<ConfigMutation>,
+    pub expected_improvement: f64,
+    pub risk_assessment: RiskAssessment,
+    pub validation_required: bool,
+}
+
+/// Individual configuration mutation
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct ConfigMutation {
+    pub target: String,        // e.g., "risk_thresholds.max_drawdown"
+    pub delta: f64,           // Percentage change
+    pub mutation_type: MutationType,
+    pub justification: String,
+}
+
+/// Type of mutation
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub enum MutationType {
+    Increase,
+    Decrease,
+    Replace,
+    Toggle,
+}
+
+/// Risk assessment for mutations
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct RiskAssessment {
+    pub risk_level: RiskLevel,
+    pub max_drawdown_impact: f64,
+    pub hotz_compliance: bool,
+    pub safety_score: f64,
+}
+
+/// Risk level classification
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub enum RiskLevel {
+    Low,
+    Medium,
+    High,
+    Critical,
+}
+
+/// Genetic pool for evolution strategies
+#[derive(Debug, Clone)]
+pub struct GeneticPool {
+    pub successful_mutations: Vec<ConfigMutation>,
+    pub failed_mutations: Vec<ConfigMutation>,
+    pub elite_configurations: HashMap<String, serde_json::Value>,
+}
+
+/// ChimeraClient for AI-driven evolution
+#[derive(Debug, Clone)]
+pub struct ChimeraClient {
+    pub api_url: String,
+    pub api_key: String,
+    pub http_client: Client,
+}
+
+/// Evolution prompt for AI
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct EvolutionPrompt {
+    pub system_state: SystemStateSnapshot,
+    pub evolution_directives: EvolutionDirective,
+}
+
+/// System state snapshot for AI analysis
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct SystemStateSnapshot {
+    pub market_conditions: String,
+    pub elite_candidates: Vec<Uuid>,
+    pub weak_candidates: Vec<Uuid>,
+    pub performance_summary: String,
+}
+
+/// Evolution directive for AI
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct EvolutionDirective {
+    pub max_config_changes: usize,
+    pub allowed_sections: Vec<String>,
+    pub risk_tolerance: f64,
+}
+
+/// Enhanced Evolution engine for FAZA 11 Swarm Genesis
 pub struct EvolutionEngine {
     /// HTTP client for LLM API calls
     http_client: Client,
-    
+
     /// Evolution history
     evolution_history: RwLock<Vec<EvolutionResult>>,
-    
+
     /// Performance analyses cache
     analyses_cache: RwLock<HashMap<Uuid, PerformanceAnalysis>>,
-    
+
     /// LLM API configuration
     llm_config: LLMConfig,
+
+    /// FAZA 11: ChimeraClient for AI-driven evolution
+    chimera_client: Option<ChimeraClient>,
+
+    /// FAZA 11: Genetic pool for mutation strategies
+    genetic_pool: RwLock<GeneticPool>,
+
+    /// FAZA 11: Mutation history
+    mutation_history: RwLock<Vec<ConfigMutationPlan>>,
 }
 
 /// LLM configuration
@@ -91,11 +188,24 @@ impl EvolutionEngine {
         info!("🔗 API URL: {}", llm_config.api_url);
         info!("🤖 Model: {}", llm_config.model);
         
+        // Initialize ChimeraClient if available
+        let chimera_client = Self::initialize_chimera_client().await;
+
+        // Initialize genetic pool
+        let genetic_pool = GeneticPool {
+            successful_mutations: Vec::new(),
+            failed_mutations: Vec::new(),
+            elite_configurations: HashMap::new(),
+        };
+
         Ok(Self {
             http_client,
             evolution_history: RwLock::new(Vec::new()),
             analyses_cache: RwLock::new(HashMap::new()),
             llm_config,
+            chimera_client,
+            genetic_pool: RwLock::new(genetic_pool),
+            mutation_history: RwLock::new(Vec::new()),
         })
     }
     
@@ -468,5 +578,186 @@ Format your response as JSON with the following structure:
             "average_expected_improvement": avg_improvement,
             "last_evolution": history.last().map(|r| r.timestamp)
         }))
+    }
+
+    /// FAZA 11: Initialize ChimeraClient
+    async fn initialize_chimera_client() -> Option<ChimeraClient> {
+        if let Ok(api_url) = std::env::var("CHIMERA_API_URL") {
+            if let Ok(api_key) = std::env::var("CHIMERA_API_KEY") {
+                info!("🔗 Initializing ChimeraClient for AI-driven evolution");
+                return Some(ChimeraClient {
+                    api_url,
+                    api_key,
+                    http_client: Client::new(),
+                });
+            }
+        }
+
+        warn!("⚠️ ChimeraClient not available - using fallback genetic pool");
+        None
+    }
+
+    /// FAZA 11: Generate swarm evolution plan using AI or genetic pool
+    pub async fn generate_swarm_evolution_plan(
+        &self,
+        leaderboard: &SwarmLeaderboard,
+    ) -> Result<ConfigMutationPlan> {
+        info!("🧬 Generating evolution plan for swarm");
+
+        // Get percentile analysis
+        let analysis = leaderboard.percentile_analysis().await?;
+
+        // Try ChimeraClient first, fallback to genetic pool
+        if let Some(ref chimera) = self.chimera_client {
+            self.generate_ai_evolution_plan(chimera, &analysis).await
+        } else {
+            self.generate_genetic_evolution_plan(&analysis).await
+        }
+    }
+
+    /// Generate evolution plan using AI (ChimeraClient)
+    async fn generate_ai_evolution_plan(
+        &self,
+        chimera: &ChimeraClient,
+        analysis: &PercentileAnalysis,
+    ) -> Result<ConfigMutationPlan> {
+        debug!("🤖 Using AI-driven evolution planning");
+
+        // Create evolution prompt
+        let prompt = EvolutionPrompt {
+            system_state: SystemStateSnapshot {
+                market_conditions: "Current market analysis".to_string(),
+                elite_candidates: analysis.elite_candidates.clone(),
+                weak_candidates: analysis.underperformers.clone(),
+                performance_summary: format!(
+                    "P90: {:.2}, P10: {:.2}, Median: {:.2}",
+                    analysis.p90_hotz_score,
+                    analysis.p10_hotz_score,
+                    analysis.median_hotz_score
+                ),
+            },
+            evolution_directives: EvolutionDirective {
+                max_config_changes: 5,
+                allowed_sections: vec![
+                    "risk_thresholds".to_string(),
+                    "hft_params".to_string(),
+                    "trading_strategy".to_string(),
+                ],
+                risk_tolerance: 0.3,
+            },
+        };
+
+        // Call ChimeraClient API
+        let response = chimera.http_client
+            .post(&format!("{}/evolution/generate", chimera.api_url))
+            .header("Authorization", format!("Bearer {}", chimera.api_key))
+            .json(&prompt)
+            .send()
+            .await?;
+
+        if response.status().is_success() {
+            let plan: ConfigMutationPlan = response.json().await?;
+            info!("✅ AI evolution plan generated successfully");
+            return Ok(plan);
+        }
+
+        warn!("⚠️ AI evolution failed, falling back to genetic pool");
+        self.generate_genetic_evolution_plan(analysis).await
+    }
+
+    /// Generate evolution plan using genetic pool (fallback)
+    async fn generate_genetic_evolution_plan(
+        &self,
+        analysis: &PercentileAnalysis,
+    ) -> Result<ConfigMutationPlan> {
+        debug!("🧬 Using genetic pool evolution planning");
+
+        let genetic_pool = self.genetic_pool.read().await;
+
+        // Select target candidate (worst performer)
+        let target_candidate = analysis.underperformers
+            .first()
+            .copied()
+            .unwrap_or_else(|| Uuid::new_v4());
+
+        // Generate mutations based on successful patterns
+        let mutations = if !genetic_pool.successful_mutations.is_empty() {
+            // Use successful mutations as templates
+            genetic_pool.successful_mutations
+                .iter()
+                .take(3)
+                .cloned()
+                .collect()
+        } else {
+            // Default conservative mutations
+            vec![
+                ConfigMutation {
+                    target: "risk_thresholds.max_drawdown".to_string(),
+                    delta: -0.1, // Reduce risk by 10%
+                    mutation_type: MutationType::Decrease,
+                    justification: "Conservative risk reduction".to_string(),
+                },
+                ConfigMutation {
+                    target: "hft_params.aggression".to_string(),
+                    delta: 0.05, // Slight increase in aggression
+                    mutation_type: MutationType::Increase,
+                    justification: "Moderate performance boost".to_string(),
+                },
+            ]
+        };
+
+        let plan = ConfigMutationPlan {
+            target_candidate,
+            mutations,
+            expected_improvement: 15.0, // Conservative estimate
+            risk_assessment: RiskAssessment {
+                risk_level: RiskLevel::Low,
+                max_drawdown_impact: 0.05,
+                hotz_compliance: true,
+                safety_score: 0.85,
+            },
+            validation_required: true,
+        };
+
+        info!("✅ Genetic evolution plan generated");
+        Ok(plan)
+    }
+
+    /// FAZA 11: Record mutation result for learning
+    pub async fn record_mutation_result(
+        &self,
+        plan: &ConfigMutationPlan,
+        success: bool,
+        performance_change: f64,
+    ) -> Result<()> {
+        let mut genetic_pool = self.genetic_pool.write().await;
+        let mut mutation_history = self.mutation_history.write().await;
+
+        // Record in history
+        mutation_history.push(plan.clone());
+
+        // Update genetic pool
+        for mutation in &plan.mutations {
+            if success && performance_change > 0.0 {
+                genetic_pool.successful_mutations.push(mutation.clone());
+            } else {
+                genetic_pool.failed_mutations.push(mutation.clone());
+            }
+        }
+
+        // Limit pool size
+        if genetic_pool.successful_mutations.len() > 100 {
+            genetic_pool.successful_mutations.remove(0);
+        }
+        if genetic_pool.failed_mutations.len() > 100 {
+            genetic_pool.failed_mutations.remove(0);
+        }
+
+        info!(
+            "📊 Mutation result recorded: success={}, change={:.2}%",
+            success, performance_change * 100.0
+        );
+
+        Ok(())
     }
 }

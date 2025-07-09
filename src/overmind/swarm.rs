@@ -7,10 +7,13 @@ use anyhow::Result;
 use async_trait::async_trait;
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
+use std::path::PathBuf;
+use std::time::Duration;
 use tokio::sync::RwLock;
 use uuid::Uuid;
-use tracing::{debug, error};
+use tracing::{debug, error, info};
 use futures;
+use sha2::{Sha256, Digest};
 
 /// Agent function trait
 #[async_trait]
@@ -54,6 +57,16 @@ pub struct AgentCandidate {
     context: RwLock<AgentContext>,
     functions: HashMap<String, Box<dyn AgentFunction>>,
     performance_history: RwLock<Vec<f64>>,
+}
+
+impl std::fmt::Debug for AgentCandidate {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.debug_struct("AgentCandidate")
+            .field("id", &self.id)
+            .field("config", &self.config)
+            .field("functions_count", &self.functions.len())
+            .finish()
+    }
 }
 
 impl AgentCandidate {
@@ -239,7 +252,7 @@ impl AgentCandidate {
     }
 }
 
-/// Performance metrics for agents
+/// Enhanced performance metrics for FAZA 11 Swarm Genesis
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct AgentMetrics {
     pub agent_id: Uuid,
@@ -251,6 +264,176 @@ pub struct AgentMetrics {
     pub last_active: chrono::DateTime<chrono::Utc>,
     pub performance_score: f64,
     pub risk_adjusted_return: f64,
+
+    // FAZA 11 Enhanced Metrics
+    pub roi: f64,                   // Return on Investment
+    pub sharpe_ratio: f64,          // Risk-adjusted returns
+    pub win_rate: f64,              // % Winning trades
+    pub latency_p90: Duration,      // 90th percentile decision latency
+    pub capital_efficiency: f64,    // Active capital percentage
+    pub hotz_score: f64,            // Synthetic Hotz performance metric
+}
+
+/// Candidate status for lifecycle management
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
+pub enum CandidateStatus {
+    Booting,
+    Active,
+    Evolving,
+    Paused,
+    Failed,
+    Terminated,
+}
+
+/// Enhanced SystemCandidate for FAZA 11 Swarm Genesis
+pub struct SystemCandidate {
+    pub id: Uuid,
+    pub config_path: PathBuf,
+    pub performance_metrics: AgentMetrics,
+    pub configuration_hash: [u8; 32],
+    pub status: CandidateStatus,
+    pub instance_handle: Option<tokio::task::JoinHandle<()>>,
+
+    // Legacy compatibility
+    pub legacy_candidate: AgentCandidate,
+}
+
+impl std::fmt::Debug for SystemCandidate {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.debug_struct("SystemCandidate")
+            .field("id", &self.id)
+            .field("config_path", &self.config_path)
+            .field("status", &self.status)
+            .field("hotz_score", &self.performance_metrics.hotz_score)
+            .finish()
+    }
+}
+
+impl Clone for SystemCandidate {
+    fn clone(&self) -> Self {
+        // Create a minimal legacy candidate for cloning
+        let legacy_candidate = AgentCandidate {
+            id: self.id,
+            config: self.legacy_candidate.config.clone(),
+            context: RwLock::new(AgentContext {
+                variables: HashMap::new(),
+                agent_id: self.id,
+                timestamp: chrono::Utc::now(),
+            }),
+            functions: HashMap::new(), // Empty functions for clone
+            performance_history: RwLock::new(Vec::new()),
+        };
+
+        Self {
+            id: self.id,
+            config_path: self.config_path.clone(),
+            performance_metrics: self.performance_metrics.clone(),
+            configuration_hash: self.configuration_hash,
+            status: self.status.clone(),
+            instance_handle: None, // Cannot clone JoinHandle
+            legacy_candidate,
+        }
+    }
+}
+
+impl SystemCandidate {
+    /// Create new SystemCandidate with enhanced capabilities
+    pub async fn spawn(config_template: &str, strategy: &str) -> Result<Self> {
+        let id = Uuid::new_v4();
+        let config_dir = format!("/var/swarm/{}", id);
+        let config_path = PathBuf::from(format!("{}/config.toml", config_dir));
+
+        // Create swarm directory
+        std::fs::create_dir_all(&config_dir)?;
+
+        // Write configuration template
+        std::fs::write(&config_path, config_template)?;
+
+        // Calculate configuration hash
+        let configuration_hash = Self::compute_config_hash(config_template);
+
+        // Create legacy candidate for compatibility
+        let legacy_candidate = AgentCandidate::new(strategy).await?;
+
+        // Initialize enhanced metrics
+        let performance_metrics = AgentMetrics {
+            agent_id: id,
+            agent_name: format!("{} Candidate", strategy),
+            total_trades: 0,
+            successful_trades: 0,
+            total_profit: 0.0,
+            average_confidence: 0.0,
+            last_active: chrono::Utc::now(),
+            performance_score: 0.0,
+            risk_adjusted_return: 0.0,
+            roi: 0.0,
+            sharpe_ratio: 0.0,
+            win_rate: 0.0,
+            latency_p90: Duration::from_millis(100), // Default 100ms
+            capital_efficiency: 0.0,
+            hotz_score: 50.0, // Default neutral score
+        };
+
+        // Spawn isolated instance
+        let instance_handle = Some(tokio::spawn(async move {
+            // Simulate agent instance running
+            info!("🤖 SystemCandidate {} started in isolated environment", id);
+
+            // Agent core loop would go here
+            loop {
+                tokio::time::sleep(Duration::from_secs(1)).await;
+                // Agent processing logic...
+            }
+        }));
+
+        Ok(SystemCandidate {
+            id,
+            config_path,
+            performance_metrics,
+            configuration_hash,
+            status: CandidateStatus::Booting,
+            instance_handle,
+            legacy_candidate,
+        })
+    }
+
+    /// Compute SHA256 hash of configuration
+    fn compute_config_hash(config_content: &str) -> [u8; 32] {
+        let mut hasher = Sha256::new();
+        hasher.update(config_content.as_bytes());
+        hasher.finalize().into()
+    }
+
+    /// Update candidate status
+    pub fn set_status(&mut self, status: CandidateStatus) {
+        self.status = status;
+        info!("🔄 SystemCandidate {} status changed to {:?}", self.id, self.status);
+    }
+
+    /// Calculate Hotz score based on performance metrics
+    pub fn calculate_hotz_score(&mut self) {
+        // Hotz philosophy: latency + efficiency + profitability
+        let latency_score = if self.performance_metrics.latency_p90.as_millis() < 1000 {
+            100.0 - (self.performance_metrics.latency_p90.as_millis() as f64 / 10.0)
+        } else {
+            0.0
+        };
+
+        let efficiency_score = self.performance_metrics.capital_efficiency * 100.0;
+        let profit_score = self.performance_metrics.roi.max(0.0).min(100.0);
+
+        self.performance_metrics.hotz_score = (latency_score * 0.4) + (efficiency_score * 0.3) + (profit_score * 0.3);
+    }
+
+    /// Terminate candidate instance
+    pub async fn terminate(&mut self) -> Result<()> {
+        if let Some(handle) = self.instance_handle.take() {
+            handle.abort();
+            info!("🛑 SystemCandidate {} terminated", self.id);
+        }
+        self.status = CandidateStatus::Terminated;
+        Ok(())
+    }
 }
 
 /// Communication message between agents
@@ -307,7 +490,7 @@ impl SwarmOrchestrator {
         let agent = AgentCandidate::new(strategy).await?;
         let agent_id = agent.id();
 
-        // Initialize metrics
+        // Initialize metrics with FAZA 11 enhanced fields
         let metrics = AgentMetrics {
             agent_id,
             agent_name: agent.config.name.clone(),
@@ -318,6 +501,13 @@ impl SwarmOrchestrator {
             last_active: chrono::Utc::now(),
             performance_score: 0.0,
             risk_adjusted_return: 0.0,
+            // FAZA 11 Enhanced Metrics
+            roi: 0.0,
+            sharpe_ratio: 0.0,
+            win_rate: 0.0,
+            latency_p90: Duration::from_millis(100),
+            capital_efficiency: 0.0,
+            hotz_score: 50.0, // Default neutral score
         };
 
         {

@@ -4,6 +4,8 @@
 use anyhow::{Context, Result};
 use serde::{Deserialize, Serialize};
 use std::env;
+use tracing::{info, warn};
+use crate::security::infisical_client::SecureEnvLoader;
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Config {
@@ -199,7 +201,7 @@ impl Config {
 
     /// Load configuration from environment variables
     pub fn from_env() -> Result<Self> {
-        dotenvy::dotenv().ok(); // Load .env file if present
+        dotenvy::dotenv().ok(); // Load .env file if present (fallback only)
 
         let trading_mode = match env::var("SNIPER_TRADING_MODE")
             .unwrap_or_else(|_| "paper".to_string())
@@ -290,6 +292,99 @@ impl Config {
         // Validate configuration
         config.validate()?;
 
+        Ok(config)
+    }
+
+    /// Load configuration from Infisical with environment fallback
+    pub async fn from_infisical() -> Result<Self> {
+        info!("🔐 Loading configuration from Infisical...");
+
+        let secure_loader = SecureEnvLoader::new(true).await;
+
+        let trading_mode = match secure_loader.get("SNIPER_TRADING_MODE").await
+            .unwrap_or_else(|| "paper".to_string())
+            .to_lowercase()
+            .as_str()
+        {
+            "live" => TradingMode::Live,
+            _ => TradingMode::Paper,
+        };
+
+        let config = Config {
+            trading: TradingConfig {
+                mode: trading_mode,
+                max_position_size: secure_loader.get("SNIPER_MAX_POSITION_SIZE").await
+                    .unwrap_or_else(|| "1000".to_string())
+                    .parse()
+                    .context("Invalid SNIPER_MAX_POSITION_SIZE")?,
+                max_daily_loss: secure_loader.get("SNIPER_MAX_DAILY_LOSS").await
+                    .unwrap_or_else(|| "500".to_string())
+                    .parse()
+                    .context("Invalid SNIPER_MAX_DAILY_LOSS")?,
+            },
+            solana: SolanaConfig {
+                rpc_url: secure_loader.get("SOLANA_RPC_URL").await
+                    .unwrap_or_else(|| "https://api.devnet.solana.com".to_string()),
+                wallet_private_key: secure_loader.get("SNIPER_WALLET_PRIVATE_KEY").await
+                    .unwrap_or_else(|| "placeholder-private-key-for-development".to_string()),
+                multi_wallet_enabled: secure_loader.get("OVERMIND_MULTI_WALLET_ENABLED").await
+                    .unwrap_or_else(|| "false".to_string())
+                    .parse()
+                    .unwrap_or(false),
+                max_slippage: secure_loader.get("SNIPER_MAX_SLIPPAGE").await
+                    .unwrap_or_else(|| "0.05".to_string())
+                    .parse()
+                    .unwrap_or(0.05),
+                priority_fee: secure_loader.get("SNIPER_PRIORITY_FEE").await
+                    .unwrap_or_else(|| "0.001".to_string())
+                    .parse()
+                    .unwrap_or(0.001),
+            },
+            ai: AIConfig {
+                enabled: secure_loader.get("OVERMIND_AI_MODE").await
+                    .unwrap_or_else(|| "enabled".to_string()) == "enabled",
+                model: secure_loader.get("OVERMIND_AI_MODEL").await
+                    .unwrap_or_else(|| "gpt-4".to_string()),
+                max_tokens: secure_loader.get("OVERMIND_AI_MAX_TOKENS").await
+                    .unwrap_or_else(|| "4000".to_string())
+                    .parse()
+                    .unwrap_or(4000),
+                temperature: secure_loader.get("OVERMIND_AI_TEMPERATURE").await
+                    .unwrap_or_else(|| "0.7".to_string())
+                    .parse()
+                    .unwrap_or(0.7),
+                openai_api_key: secure_loader.get("OPENAI_API_KEY").await
+                    .unwrap_or_else(|| "placeholder-openai-key".to_string()),
+            },
+            api: APIConfig {
+                helius_api_key: secure_loader.get("HELIUS_API_KEY").await
+                    .unwrap_or_else(|| "placeholder-helius-key".to_string()),
+                quicknode_api_key: secure_loader.get("QUICKNODE_API_KEY").await
+                    .unwrap_or_else(|| "placeholder-quicknode-key".to_string()),
+                jina_api_key: secure_loader.get("JINA_API_KEY").await
+                    .unwrap_or_else(|| "placeholder-jina-key".to_string()),
+                deepseek_api_key: secure_loader.get("DEEPSEEK_API_KEY").await
+                    .unwrap_or_else(|| "placeholder-deepseek-key".to_string()),
+            },
+            monitoring: MonitoringConfig {
+                prometheus_enabled: secure_loader.get("PROMETHEUS_ENABLED").await
+                    .unwrap_or_else(|| "true".to_string())
+                    .parse()
+                    .unwrap_or(true),
+                prometheus_port: secure_loader.get("PROMETHEUS_PORT").await
+                    .unwrap_or_else(|| "9090".to_string())
+                    .parse()
+                    .unwrap_or(9090),
+                log_level: secure_loader.get("LOG_LEVEL").await
+                    .unwrap_or_else(|| "info".to_string()),
+                enable_metrics: secure_loader.get("ENABLE_METRICS").await
+                    .unwrap_or_else(|| "true".to_string())
+                    .parse()
+                    .unwrap_or(true),
+            },
+        };
+
+        info!("✅ Configuration loaded from Infisical successfully");
         Ok(config)
     }
 

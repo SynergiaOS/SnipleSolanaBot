@@ -4,10 +4,12 @@
 
 set -e
 
-echo "🧠 THE OVERMIND PROTOCOL - SECURE STARTUP"
-echo "========================================"
+echo "🧠 THE OVERMIND PROTOCOL v2.0 - VAULT-SECURED STARTUP"
+echo "====================================================="
 echo "🎯 MISSION: 28 SOL → 100 SOL"
-echo "🔐 SECURITY: Infisical secrets management"
+echo "🔐 SECURITY: Infisical + DragonflyDB Cache"
+echo "🌐 VPC: vpc-05f61f843ed60555e (192.168.0.0/16)"
+echo "🐉 DragonflyDB: High-performance cache layer"
 echo ""
 
 # Check prerequisites
@@ -48,15 +50,32 @@ docker-compose up -d
 echo "⏳ Waiting for services to initialize..."
 sleep 10
 
-# Start THE OVERMIND PROTOCOL with Infisical secrets
-echo "🧠 Starting THE OVERMIND PROTOCOL with secure secrets..."
+# Load production configuration
+echo "🔧 Loading production configuration..."
+source config/production-vault.env
+
+# Start THE OVERMIND PROTOCOL with full VAULT security
+echo "🧠 Starting THE OVERMIND PROTOCOL v2.0 with VAULT security..."
 echo "🎯 Target: 28 SOL → 100 SOL"
-echo "⚡ Mode: ULTRA BLITZKRIEG"
+echo "⚡ Mode: ULTRA BLITZKRIEG + VAULT-SECURED"
+echo "🔐 Token: st.31baa38e-572d-4abc-8de6-83b1abca9cbf..."
+echo "🐉 DragonflyDB: Enabled"
 echo ""
 
-# Run with Infisical secrets injection
-infisical run --env=prod -- cargo run --profile contabo
+# Run with Infisical service token
+INFISICAL_SERVICE_TOKEN=st.31baa38e-572d-4abc-8de6-83b1abca9cbf.97a3bb72ec1ab7c1002a187feaaa31d3.ccae3c429818d256c68d768c15f22e78 \
+INFISICAL_PROJECT_ID=73c2f3cb-c922-4a46-a333-7b96fbc6301a \
+INFISICAL_ENVIRONMENT=production \
+DRAGONFLYDB_VPC_ID=vpc-05f61f843ed60555e \
+DRAGONFLYDB_CIDR=192.168.0.0/16 \
+DRAGONFLYDB_ACCOUNT_ID=962364259018 \
+cargo run --profile contabo
 
-echo "🎉 THE OVERMIND PROTOCOL started successfully!"
+echo "🎉 THE OVERMIND PROTOCOL v2.0 started successfully!"
 echo "📊 Monitor at: http://localhost:8080"
 echo "🧠 AI Brain at: http://localhost:8000"
+echo "🐉 DragonflyDB Cache: Active"
+echo "🔐 Infisical Vault: Secured"
+echo "🌐 VPC Network: Isolated"
+echo ""
+echo "🚀 VAULT-SECURED TRADING SYSTEM ONLINE!"

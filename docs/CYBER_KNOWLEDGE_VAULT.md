@@ -117,6 +117,7 @@
 3. **Jito Bundle Integration** - Advanced transaction bundling
 4. **DragonflyDB Communication** - Distributed state management
 5. **Adaptive Risk Management** - Dynamic risk adjustment algorithms
+6. **[Kestra Orchestration](./KESTRA_ORCHESTRATION.md)** - Enterprise-level workflow automation
 
 ---
 
@@ -147,13 +148,14 @@
 **CYBER KNOWLEDGE STATUS:**
 
 ```plaintext
-📚 Baza Wiedzy Zaktualizowana + Context7 Integration
+📚 Baza Wiedzy: ZAKTUALIZOWANA + Context7 + Kestra Integration
 🧠 8,000+ źródeł gotowych do integracji (Context7)
-⚡ Priorytet: Phoenix Engine v2.1 + Real-time Documentation
-🔜 Next: Context7 Live Integration w Phoenix Bot
-🎯 Performance: 87% compute unit reduction available
+🎯 Orchestration: Kestra workflows dla Phoenix Engine
+⚡ Performance: 87% compute unit reduction available
 🚀 MEV: Jito bundle optimization patterns ready
 💰 Trading: 1,622 Pump.fun API snippets integrated
+🔄 Automation: 24/7 autonomous operation ready
+🛡️ Risk Management: Real-time monitoring workflows
 ```
 
 > "Bitwa na memcoiny to wojna informacyjna. Ten, kto panuje nad danymi, wygrywa zanim przeciwnik zdąży pomyśleć."  

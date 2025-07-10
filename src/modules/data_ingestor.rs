@@ -14,6 +14,9 @@ pub struct MarketData {
     pub volume: f64,
     pub timestamp: chrono::DateTime<chrono::Utc>,
     pub source: DataSource,
+    // Dodane pola dla strategii memcoin
+    pub price_change_1h: f64,
+    pub price_change_24h: f64,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -95,6 +98,8 @@ impl DataIngestor {
                 volume: 1000.0 + (chrono::Utc::now().timestamp_millis() % 500) as f64,
                 timestamp: chrono::Utc::now(),
                 source: DataSource::Helius,
+                price_change_1h: (chrono::Utc::now().timestamp_millis() % 20) as f64 - 10.0, // -10% to +10%
+                price_change_24h: (chrono::Utc::now().timestamp_millis() % 100) as f64 - 50.0, // -50% to +50%
             };
 
             if let Err(e) = self.market_data_sender.send(market_data) {
@@ -132,6 +137,8 @@ impl DataIngestor {
             volume: 1000.0,
             timestamp: chrono::Utc::now(),
             source: DataSource::Helius,
+            price_change_1h: 5.0, // Symulowane dane
+            price_change_24h: 15.0, // Symulowane dane
         };
 
         Ok(market_data)

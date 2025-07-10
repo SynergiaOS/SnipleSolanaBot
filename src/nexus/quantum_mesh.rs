@@ -516,29 +516,44 @@ impl QuantumMeshLayer {
     ) -> f64 {
         let mut nodes = quantum_nodes.write().await;
         
-        if let (Some(node_a_ref), Some(node_b_ref)) = (nodes.get_mut(node_a), nodes.get_mut(node_b)) {
-            // Simulate quantum entanglement synchronization
-            // In reality, this would involve complex quantum state operations
-            
-            // Synchronize phases
-            let avg_phase = (node_a_ref.quantum_state.phase + node_b_ref.quantum_state.phase) / 2.0;
+        // Get phases first
+        let (phase_a, phase_b) = {
+            let node_a_ref = nodes.get(node_a);
+            let node_b_ref = nodes.get(node_b);
+            if let (Some(a), Some(b)) = (node_a_ref, node_b_ref) {
+                (a.quantum_state.phase, b.quantum_state.phase)
+            } else {
+                return 0.0;
+            }
+        };
+
+        // Calculate average phase
+        let avg_phase = (phase_a + phase_b) / 2.0;
+
+        // Update nodes separately
+        if let Some(node_a_ref) = nodes.get_mut(node_a) {
             node_a_ref.quantum_state.phase = avg_phase;
-            node_b_ref.quantum_state.phase = avg_phase;
-            
-            // Maintain entanglement correlation
-            let correlation = 0.99; // High correlation for entangled states
-            node_a_ref.quantum_state.correlations.insert(node_b.to_string(), correlation);
-            node_b_ref.quantum_state.correlations.insert(node_a.to_string(), correlation);
-            
-            // Update coherence levels
-            let coherence = 0.98; // Slight decoherence over time
-            node_a_ref.coherence_level = coherence;
-            node_b_ref.coherence_level = coherence;
-            
-            coherence
-        } else {
-            0.0 // No coherence if nodes don't exist
         }
+
+        if let Some(node_b_ref) = nodes.get_mut(node_b) {
+            node_b_ref.quantum_state.phase = avg_phase;
+        }
+
+        // Update correlations and coherence
+        let correlation = 0.99; // High correlation for entangled states
+        let coherence = 0.98; // Slight decoherence over time
+
+        if let Some(node_a_ref) = nodes.get_mut(node_a) {
+            node_a_ref.quantum_state.correlations.insert(node_b.to_string(), correlation);
+            node_a_ref.coherence_level = coherence;
+        }
+
+        if let Some(node_b_ref) = nodes.get_mut(node_b) {
+            node_b_ref.quantum_state.correlations.insert(node_a.to_string(), correlation);
+            node_b_ref.coherence_level = coherence;
+        }
+
+        coherence
     }
     
     /// Process state synchronization

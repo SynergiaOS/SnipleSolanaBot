@@ -1,1 +1,0 @@
-{"rustc":11410426090777951712,"features":"[]","declared_features":"[\"clap\", \"cli\"]","target":3618754987716034752,"profile":13952719172529475294,"path":12678504358596926386,"deps":[],"local":[{"CheckDepInfo":{"dep_info":"contabo/.fingerprint/dotenvy-765f002b2ee28746/dep-lib-dotenvy","checksum":false}}],"rustflags":[],"config":2069994364910194474,"compile_kind":0}

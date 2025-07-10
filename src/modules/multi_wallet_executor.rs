@@ -260,6 +260,12 @@ impl MultiWalletExecutor {
             StrategyType::FlashLoanArbitrage => Some(WalletType::HFT),
             StrategyType::YieldFarming => Some(WalletType::Conservative),
             StrategyType::OptionsStrategy => Some(WalletType::Experimental),
+            // MEMCOIN SWARMGUARD STRATEGIES
+            StrategyType::LiquidityTsunami => Some(WalletType::Aggressive),
+            StrategyType::SocialFission => Some(WalletType::Aggressive),
+            StrategyType::WhaleShadowing => Some(WalletType::Aggressive),
+            StrategyType::DeathSpiralIntercept => Some(WalletType::Experimental),
+            StrategyType::MemeVirus => Some(WalletType::Aggressive),
         }
     }
 

@@ -31,6 +31,7 @@ pub mod agents;
 pub use config::Config;
 pub use modules::ai_connector::AIConnector;
 pub use modules::hft_engine::HftEngine;
+pub use modules::micro_lightning::{MicroLightningOrchestrator, MicroLightningStrategy};
 
 // THE OVERMIND PROTOCOL v4.1 exports
 pub use overmind::OvermindProtocol;

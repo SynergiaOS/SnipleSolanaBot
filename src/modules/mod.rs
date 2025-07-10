@@ -28,6 +28,7 @@ pub mod strategy;
 pub mod risk;
 pub mod hft_engine;
 pub mod real_sell_executor;
+pub mod micro_lightning;
 
 // ============================================================================
 // DEX & MARKET DATA MODULES
@@ -74,6 +75,11 @@ pub mod dev_tracker;
 pub mod meteora_damm;
 pub mod soul_meteor;
 pub mod rugpull_scanner;
+
+// ============================================================================
+// MEMCOIN SWARMGUARD STRATEGIES - ARCHITEKTURA WOJENNA
+// ============================================================================
+pub mod memcoin_strategies;
 
 // ============================================================================
 // PERFORMANCE & OPTIMIZATION MODULES

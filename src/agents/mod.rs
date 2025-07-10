@@ -315,8 +315,8 @@ mod tests {
         assert_eq!(metrics.total_agents, 1);
         
         // Get agent
-        let agent = manager.get_agent(&agent_id).await;
-        assert!(agent.is_some());
+        let agent_exists = manager.get_agent(&agent_id).await;
+        assert!(agent_exists);
         
         // Remove agent
         manager.remove_agent(&agent_id).await.unwrap();

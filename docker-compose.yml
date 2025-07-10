@@ -35,8 +35,47 @@ services:
       - SOLANA_RPC_URL=${SOLANA_RPC_URL}
       - HELIUS_API_KEY=${HELIUS_API_KEY}
       - JITO_API_KEY=${JITO_API_KEY}
+      # MICRO-LIGHTNING specific configuration
+      - MICRO_LIGHTNING_ENABLED=${MICRO_LIGHTNING_ENABLED:-true}
+      - MICRO_CAPITAL_ALLOCATION=${MICRO_CAPITAL_ALLOCATION:-20.0}
+      - MICRO_MAX_HOLD_TIME=${MICRO_MAX_HOLD_TIME:-55}
+      - MICRO_EMERGENCY_SLIPPAGE=${MICRO_EMERGENCY_SLIPPAGE:-45.0}
+      - MICRO_DAILY_OPERATION_LIMIT=${MICRO_DAILY_OPERATION_LIMIT:-5}
     ports:
       - "8080:8080"
+    depends_on:
+      - dragonfly
+      - prometheus
+      - micro-lightning-monitor
+    networks:
+      - trading-network
+    restart: unless-stopped
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "100m"
+        max-file: "3"
+
+  # MICRO-LIGHTNING Monitor - Specialized monitoring for micro operations
+  micro-lightning-monitor:
+    build:
+      context: .
+      dockerfile: Dockerfile.micro-lightning
+    container_name: overmind-micro-lightning-monitor
+    environment:
+      - MICRO_LIGHTNING_MODE=${MICRO_LIGHTNING_MODE:-active}
+      - DRAGONFLY_URL=redis://dragonfly:6379
+      - PROMETHEUS_URL=http://prometheus:9090
+      - ALERT_WEBHOOK_URL=${MICRO_LIGHTNING_ALERT_WEBHOOK}
+      # 5 Commandments Configuration
+      - COMMANDMENT_LIFE_LIMIT=55
+      - COMMANDMENT_WALLET_ROTATION=3
+      - COMMANDMENT_MILITIA_COOLDOWN=30
+      - COMMANDMENT_PSYCHOLOGY_TAX=0.10
+      - COMMANDMENT_BATTLEFIELD_MIN=2000
+      - COMMANDMENT_BATTLEFIELD_MAX=10000
+    ports:
+      - "8081:8081"
     depends_on:
       - dragonfly
       - prometheus
@@ -46,8 +85,8 @@ services:
     logging:
       driver: "json-file"
       options:
-        max-size: "100m"
-        max-file: "3"
+        max-size: "50m"
+        max-file: "5"
 
   # DragonflyDB - High-performance Redis
   dragonfly:

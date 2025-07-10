@@ -9,7 +9,8 @@ use anyhow::{Result, anyhow};
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use std::sync::{Arc, RwLock};
-use std::time::{Duration, Instant};
+use std::time::Duration;
+use chrono::{DateTime, Utc};
 use tokio::sync::{mpsc, RwLock as AsyncRwLock};
 use tracing::{debug, info, warn, error};
 use uuid::Uuid;
@@ -50,7 +51,7 @@ pub struct SingularityNode {
     pub improvement_rate: f64,
     pub contribution_weight: f64,
     pub singularity_readiness: f64,
-    pub last_improvement: Instant,
+    pub last_improvement: DateTime<Utc>,
     pub improvement_history: Vec<ImprovementRecord>,
 }
 
@@ -61,7 +62,7 @@ pub struct ImprovementRecord {
     pub improvement_type: ImprovementType,
     pub intelligence_delta: f64,
     pub amplification_delta: f64,
-    pub timestamp: Instant,
+    pub timestamp: DateTime<Utc>,
     pub success: bool,
 }
 
@@ -212,7 +213,7 @@ pub struct SingularityDetection {
     pub detection_id: String,
     pub criteria_met: Vec<String>,
     pub confidence_level: f64,
-    pub timestamp: Instant,
+    pub timestamp: DateTime<Utc>,
     pub participating_nodes: Vec<String>,
 }
 
@@ -224,7 +225,7 @@ pub struct SingularityAchievement {
     pub intelligence_level: f64,
     pub amplification_factor: f64,
     pub participating_nodes: Vec<String>,
-    pub timestamp: Instant,
+    pub timestamp: DateTime<Utc>,
     pub capabilities_unlocked: Vec<String>,
 }
 
@@ -344,7 +345,7 @@ impl SwarmSingularityProtocol {
             improvement_rate: 0.1,
             contribution_weight: intelligence_level,
             singularity_readiness: intelligence_level * 0.8,
-            last_improvement: Instant::now(),
+            last_improvement: Utc::now(),
             improvement_history: Vec::new(),
         };
         
@@ -398,7 +399,7 @@ impl SwarmSingularityProtocol {
             improvement_type: ImprovementType::RecursiveSelfModification,
             intelligence_delta: 0.1,
             amplification_delta: 0.05,
-            timestamp: Instant::now(),
+            timestamp: Utc::now(),
             success: true,
         };
         
@@ -556,7 +557,7 @@ impl SwarmSingularityProtocol {
                             if let Some(node) = nodes.get_mut(&node_id) {
                                 node.intelligence_level *= (1.0 + amplification);
                                 node.amplification_capacity *= (1.0 + amplification * 0.5);
-                                node.last_improvement = Instant::now();
+                                node.last_improvement = Utc::now();
                             }
                         }
                         
@@ -573,7 +574,7 @@ impl SwarmSingularityProtocol {
                                 node.amplification_capacity += improvement.amplification_delta;
                                 node.recursive_depth += 1;
                                 node.improvement_history.push(improvement.clone());
-                                node.last_improvement = Instant::now();
+                                node.last_improvement = Utc::now();
                             }
                         }
                         
@@ -680,7 +681,7 @@ impl SwarmSingularityProtocol {
                             improvement_type: ImprovementType::AlgorithmicOptimization,
                             intelligence_delta: 0.1,
                             amplification_delta: 0.05,
-                            timestamp: Instant::now(),
+                            timestamp: Utc::now(),
                             success: true,
                         };
                         
@@ -749,7 +750,7 @@ impl SwarmSingularityProtocol {
                         detection_id: Uuid::new_v4().to_string(),
                         criteria_met,
                         confidence_level: singularity_score,
-                        timestamp: Instant::now(),
+                        timestamp: Utc::now(),
                         participating_nodes: nodes.keys().cloned().collect(),
                     };
                     
@@ -765,7 +766,7 @@ impl SwarmSingularityProtocol {
                             intelligence_level: m.collective_intelligence,
                             amplification_factor: m.amplification_factor,
                             participating_nodes: nodes.keys().cloned().collect(),
-                            timestamp: Instant::now(),
+                            timestamp: Utc::now(),
                             capabilities_unlocked: vec![
                                 "Superintelligent Decision Making".to_string(),
                                 "Recursive Self-Improvement".to_string(),

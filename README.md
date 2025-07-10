@@ -1,12 +1,61 @@
-# 🔮 THE OVERMIND PROTOCOL v3.0 - QUANTUM SECURITY
+# 🚀 THE OVERMIND PROTOCOL v4.1 "MONOLITH"
 
-🎯 **The most advanced AI-enhanced MEV trading system with QUANTUM-SAFE SECURITY**
+🎯 **Autonomous AI Trading System with MICRO-LIGHTNING Operations**
 
-⚡ **Sub-10ms latency** | 🧠 **AI-powered analysis** | 🔮 **Quantum-safe cryptography** | 🚀 **Technological singularity**
+⚡ **Sub-120ms execution** | 🧠 **AI-powered decisions** | 💰 **$20/60min operations** | 🛡️ **5 Commandments enforcement**
+
+## ⚡ **OPERACJA MIKRO-BŁYSKAWICA** - NEW!
+
+**MICRO-LIGHTNING TRADING SYSTEM** for high-frequency meme coin operations:
+
+- **💰 $20 Capital Management**: Specialized 5-wallet architecture
+- **⏰ 55-Minute Operations**: Golden window → Decay → Hard expiry
+- **🛡️ 5 Commandments**: Life Limit, Wallet Reincarnation, Militia Strategy, Emotional Accounting, Battlefield Selection
+- **🚨 Emergency Protocols**: Comprehensive panic exit and safety systems
+- **📊 Real-time Monitoring**: Advanced metrics with Prometheus integration
+
+### 🚀 Quick Start - Micro-Lightning
+
+```bash
+# Start the complete micro-lightning system
+./scripts/start-micro-lightning.sh
+
+# Monitor system status
+curl http://localhost:8081/status
+
+# Check the 5 Commandments compliance
+curl http://localhost:8081/commandments
+
+# View real-time metrics
+curl http://localhost:8081/metrics
+
+# Stop system safely
+./scripts/stop-micro-lightning.sh
+```
+
+## 🛡️ **THE 5 COMMANDMENTS (NAKAZÓW)**
+
+Disciplined trading rules for micro-lightning operations:
+
+1. **LIFE LIMIT (Nakaz Życia)**: Maximum 55-minute hold time
+2. **WALLET REINCARNATION (Nakaz Reinkarnacji)**: Rotate wallets after 3 operations
+3. **MILITIA STRATEGY (Nakaz Milicji)**: 30-minute cooldown after 3 losses
+4. **EMOTIONAL ACCOUNTING (Nakaz Rachunku Emocji)**: 10% psychology tax on profits
+5. **BATTLEFIELD SELECTION (Nakaz Wyboru Pola Bitwy)**: $2K-$10K liquidity range
+
+## 💰 **MICRO WALLET ARCHITECTURE**
+
+$20 capital allocation across 5 specialized wallets:
+
+- **⚡ Lightning Wallet**: $4.0 (20%) - Primary trading capital
+- **⛽ Emergency Gas**: $3.5 (17.5%) - Emergency gas reserves
+- **🔄 Reentry Buffer**: $4.5 (22.5%) - Re-entry operations
+- **🧠 Psychology Fund**: $4.0 (20%) - Profit tax collection
+- **🎯 Tactical Exit**: $4.0 (20%) - DLMM and exit strategies
 
 ## 🔮 **QUANTUM SECURITY STACK**
 
-THE OVERMIND PROTOCOL v3.0 features **TECHNOLOGICAL SINGULARITY** in cybersecurity:
+THE OVERMIND PROTOCOL v4.1 features **TECHNOLOGICAL SINGULARITY** in cybersecurity:
 
 - **🔮 Post-Quantum Cryptography**: CRYSTALS-Kyber encryption resistant to quantum computers
 - **🤖 AI Security Monitoring**: Autonomous threat detection with machine learning

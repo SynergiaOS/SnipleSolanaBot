@@ -1,0 +1,194 @@
+# PROMETHEUS CONFIGURATION FOR MICRO-LIGHTNING OPERATIONS
+# Specialized metrics collection for OPERACJA MIKRO-BŁYSKAWICA
+
+global:
+  scrape_interval: 5s  # High frequency for micro operations
+  evaluation_interval: 5s
+  external_labels:
+    monitor: 'overmind-micro-lightning'
+    environment: '${ENVIRONMENT:-production}'
+
+# Alerting configuration
+alerting:
+  alertmanagers:
+    - static_configs:
+        - targets:
+          - alertmanager:9093
+
+# Load alerting rules
+rule_files:
+  - "micro-lightning-alerts.yml"
+
+# Scrape configurations
+scrape_configs:
+  # Main trading executor with micro-lightning metrics
+  - job_name: 'overmind-trading-executor'
+    static_configs:
+      - targets: ['trading-executor:8080']
+    scrape_interval: 2s  # Very high frequency for trading metrics
+    metrics_path: /metrics
+    params:
+      format: ['prometheus']
+
+  # Dedicated micro-lightning monitor
+  - job_name: 'micro-lightning-monitor'
+    static_configs:
+      - targets: ['micro-lightning-monitor:8081']
+    scrape_interval: 1s  # Ultra-high frequency for micro operations
+    metrics_path: /metrics
+    params:
+      format: ['prometheus']
+
+  # AI Brain metrics (for decision latency)
+  - job_name: 'overmind-ai-brain'
+    static_configs:
+      - targets: ['ai-brain:3000']
+    scrape_interval: 5s
+    metrics_path: /metrics
+
+  # DragonflyDB metrics (for cache performance)
+  - job_name: 'dragonfly'
+    static_configs:
+      - targets: ['dragonfly:6379']
+    scrape_interval: 10s
+    metrics_path: /metrics
+
+  # System metrics
+  - job_name: 'node-exporter'
+    static_configs:
+      - targets: ['node-exporter:9100']
+    scrape_interval: 15s
+
+# Recording rules for micro-lightning specific calculations
+# recording_rules:
+#  # Micro-lightning performance metrics
+#  - name: micro_lightning_performance
+#    interval: 5s
+#    rules:
+#      # Average execution latency (should be <120ms)
+#      - record: micro_lightning:execution_latency_avg
+#        expr: avg_over_time(micro_lightning_execution_latency_seconds[1m]) * 1000
+#
+#      # Win rate calculation (rolling 1 hour)
+#      - record: micro_lightning:win_rate_1h
+#        expr: |
+#          (
+#            increase(micro_lightning_successful_operations_total[1h]) /
+#            increase(micro_lightning_total_operations_total[1h])
+#          ) * 100
+#
+#      # Average profit per operation (rolling 1 hour)
+#      - record: micro_lightning:avg_profit_1h
+#        expr: |
+#          increase(micro_lightning_total_profit_usd[1h]) /
+#          increase(micro_lightning_total_operations_total[1h])
+#
+#      # Psychology fund accumulation rate
+#      - record: micro_lightning:psychology_fund_rate
+#        expr: rate(micro_lightning_psychology_fund_usd[5m]) * 60
+#
+#      # Wallet rotation frequency
+#      - record: micro_lightning:wallet_rotation_rate
+#        expr: rate(micro_lightning_wallet_rotations_total[1h])
+
+#  # The 5 Commandments compliance metrics
+#  - name: micro_lightning_commandments
+#    interval: 10s
+#    rules:
+#      # Commandment 1: Life Limit violations
+#      - record: micro_lightning:life_limit_violations_rate
+#        expr: rate(micro_lightning_life_limit_violations_total[1h])
+#
+#      # Commandment 2: Wallet rotation compliance
+#      - record: micro_lightning:wallet_rotation_compliance
+#        expr: |
+#          (
+#            micro_lightning_operations_current_wallet /
+#            micro_lightning_max_operations_per_wallet
+#          ) * 100
+#
+#      # Commandment 3: Militia strategy activations
+#      - record: micro_lightning:militia_cooldowns_rate
+#        expr: rate(micro_lightning_militia_cooldowns_total[1h])
+#
+#      # Commandment 4: Psychology tax collection rate
+#      - record: micro_lightning:psychology_tax_rate
+#        expr: |
+#          rate(micro_lightning_psychology_tax_collected_usd[1h]) /
+#          rate(micro_lightning_total_profit_usd[1h]) * 100
+#
+#      # Commandment 5: Battlefield selection accuracy
+#      - record: micro_lightning:battlefield_selection_accuracy
+#        expr: |
+#          (
+#            rate(micro_lightning_battlefield_valid_tokens_total[1h]) /
+#            rate(micro_lightning_battlefield_total_tokens_total[1h])
+#          ) * 100
+
+#  # Emergency response metrics
+#  - name: micro_lightning_emergency
+#    interval: 5s
+#    rules:
+#      # Emergency trigger frequency
+#      - record: micro_lightning:emergency_triggers_rate
+#        expr: rate(micro_lightning_emergency_triggers_total[1h])
+#
+#      # Emergency response time (should be <30s)
+#      - record: micro_lightning:emergency_response_time_avg
+#        expr: avg_over_time(micro_lightning_emergency_response_time_seconds[5m])
+#
+#      # Circuit breaker activation rate
+#      - record: micro_lightning:circuit_breaker_rate
+#        expr: rate(micro_lightning_circuit_breaker_activations_total[1h])
+
+#  # Time protocol metrics
+#  - name: micro_lightning_time_protocol
+#    interval: 5s
+#    rules:
+#      # Average hold time (target: 15-25 minutes)
+#      - record: micro_lightning:avg_hold_time_minutes
+#        expr: avg_over_time(micro_lightning_position_hold_time_minutes[1h])
+#
+#      # Golden window utilization
+#      - record: micro_lightning:golden_window_utilization
+#        expr: |
+#          (
+#            rate(micro_lightning_golden_window_exits_total[1h]) /
+#            rate(micro_lightning_total_operations_total[1h])
+#          ) * 100
+#
+#      # Hard expiry rate (should be minimal)
+#      - record: micro_lightning:hard_expiry_rate
+#        expr: |
+#          (
+#            rate(micro_lightning_hard_expiry_exits_total[1h]) /
+#            rate(micro_lightning_total_operations_total[1h])
+#          ) * 100
+
+#  # Risk management metrics
+#  - name: micro_lightning_risk
+#    interval: 10s
+#    rules:
+#      # Current drawdown percentage
+#      - record: micro_lightning:current_drawdown_pct
+#        expr: |
+#          (
+#            (micro_lightning_peak_portfolio_value - micro_lightning_current_portfolio_value) /
+#            micro_lightning_peak_portfolio_value
+#          ) * 100
+#
+#      # Risk score distribution
+#      - record: micro_lightning:avg_risk_score
+#        expr: avg_over_time(micro_lightning_token_risk_score[1h])
+#
+#      # Slippage impact
+#      - record: micro_lightning:avg_slippage_pct
+#        expr: avg_over_time(micro_lightning_execution_slippage_percent[1h])
+
+# Storage configuration for high-frequency data
+# storage:
+#   tsdb:
+#     retention_time: 7d  # Keep 7 days of high-frequency micro-lightning data
+#     min_block_duration: 2h
+#     max_block_duration: 24h
+#     wal_compression: true

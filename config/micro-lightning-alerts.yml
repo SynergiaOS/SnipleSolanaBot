@@ -1,0 +1,260 @@
+# MICRO-LIGHTNING ALERTING RULES
+# Critical alerts for OPERACJA MIKRO-BŁYSKAWICA monitoring
+
+groups:
+  # Critical Performance Alerts
+  - name: micro_lightning_critical
+    rules:
+      # Execution latency exceeding 120ms threshold
+      - alert: MicroLightningHighLatency
+        expr: micro_lightning:execution_latency_avg > 120
+        for: 30s
+        labels:
+          severity: critical
+          component: micro-lightning
+          commandment: performance
+        annotations:
+          summary: "Micro-Lightning execution latency too high"
+          description: "Execution latency is {{ $value }}ms, exceeding 120ms threshold for {{ $labels.instance }}"
+          action: "Check system load, network connectivity, and RPC performance"
+
+      # Win rate dropping below 50%
+      - alert: MicroLightningLowWinRate
+        expr: micro_lightning:win_rate_1h < 50
+        for: 5m
+        labels:
+          severity: critical
+          component: micro-lightning
+          commandment: performance
+        annotations:
+          summary: "Micro-Lightning win rate critically low"
+          description: "Win rate is {{ $value }}%, below 50% threshold"
+          action: "Review entry conditions, market conditions, and strategy parameters"
+
+      # Daily loss exceeding $4 (20% of capital)
+      - alert: MicroLightningExcessiveLoss
+        expr: micro_lightning_daily_loss_usd > 4.0
+        for: 1m
+        labels:
+          severity: critical
+          component: micro-lightning
+          commandment: risk_management
+        annotations:
+          summary: "Micro-Lightning daily loss limit exceeded"
+          description: "Daily loss is ${{ $value }}, exceeding $4 limit"
+          action: "IMMEDIATE: Halt all operations and review risk parameters"
+
+      # Emergency trigger rate too high
+      - alert: MicroLightningFrequentEmergencies
+        expr: micro_lightning:emergency_triggers_rate > 0.1
+        for: 2m
+        labels:
+          severity: critical
+          component: micro-lightning
+          commandment: emergency
+        annotations:
+          summary: "Frequent emergency triggers detected"
+          description: "Emergency trigger rate is {{ $value }} per hour"
+          action: "Review market conditions and emergency thresholds"
+
+  # The 5 Commandments Violations
+  - name: micro_lightning_commandments
+    rules:
+      # Commandment 1: Life Limit violations
+      - alert: MicroLightningLifeLimitViolation
+        expr: micro_lightning:life_limit_violations_rate > 0
+        for: 1m
+        labels:
+          severity: warning
+          component: micro-lightning
+          commandment: life_limit
+        annotations:
+          summary: "Life Limit (Commandment 1) violated"
+          description: "Position held longer than 55 minutes"
+          action: "Force exit position and review time protocol"
+
+      # Commandment 2: Wallet rotation overdue
+      - alert: MicroLightningWalletRotationOverdue
+        expr: micro_lightning:wallet_rotation_compliance > 100
+        for: 1m
+        labels:
+          severity: warning
+          component: micro-lightning
+          commandment: wallet_reincarnation
+        annotations:
+          summary: "Wallet Reincarnation (Commandment 2) required"
+          description: "Wallet has exceeded 3 operations limit"
+          action: "Initiate wallet rotation immediately"
+
+      # Commandment 3: Militia strategy cooldown active
+      - alert: MicroLightningMilitiaCooldown
+        expr: micro_lightning_militia_cooldown_active == 1
+        for: 1m
+        labels:
+          severity: info
+          component: micro-lightning
+          commandment: militia_strategy
+        annotations:
+          summary: "Militia Strategy (Commandment 3) cooldown active"
+          description: "30-minute cooldown after 3 consecutive losses"
+          action: "Wait for cooldown to complete before resuming operations"
+
+      # Commandment 4: Psychology fund below minimum
+      - alert: MicroLightningPsychologyFundLow
+        expr: micro_lightning_psychology_fund_usd < 2.0
+        for: 5m
+        labels:
+          severity: warning
+          component: micro-lightning
+          commandment: emotional_accounting
+        annotations:
+          summary: "Psychology Fund (Commandment 4) below minimum"
+          description: "Psychology fund balance is ${{ $value }}, below $2 minimum"
+          action: "Review profit allocation and psychology tax collection"
+
+      # Commandment 5: Battlefield selection accuracy low
+      - alert: MicroLightningBattlefieldAccuracyLow
+        expr: micro_lightning:battlefield_selection_accuracy < 80
+        for: 10m
+        labels:
+          severity: warning
+          component: micro-lightning
+          commandment: battlefield_selection
+        annotations:
+          summary: "Battlefield Selection (Commandment 5) accuracy low"
+          description: "Only {{ $value }}% of tokens meet battlefield criteria"
+          action: "Review token filtering parameters and market conditions"
+
+  # System Health Alerts
+  - name: micro_lightning_system_health
+    rules:
+      # Micro-Lightning monitor down
+      - alert: MicroLightningMonitorDown
+        expr: up{job="micro-lightning-monitor"} == 0
+        for: 30s
+        labels:
+          severity: critical
+          component: micro-lightning
+          commandment: system
+        annotations:
+          summary: "Micro-Lightning monitor is down"
+          description: "Monitor service is not responding"
+          action: "Restart micro-lightning-monitor service immediately"
+
+      # High memory usage
+      - alert: MicroLightningHighMemoryUsage
+        expr: |
+          (
+            process_resident_memory_bytes{job="micro-lightning-monitor"} /
+            node_memory_MemTotal_bytes
+          ) * 100 > 80
+        for: 5m
+        labels:
+          severity: warning
+          component: micro-lightning
+          commandment: system
+        annotations:
+          summary: "Micro-Lightning monitor high memory usage"
+          description: "Memory usage is {{ $value }}%"
+          action: "Check for memory leaks and consider restart"
+
+      # Circuit breaker frequently activated
+      - alert: MicroLightningFrequentCircuitBreaker
+        expr: micro_lightning:circuit_breaker_rate > 0.05
+        for: 5m
+        labels:
+          severity: warning
+          component: micro-lightning
+          commandment: emergency
+        annotations:
+          summary: "Circuit breaker frequently activated"
+          description: "Circuit breaker activation rate is {{ $value }} per hour"
+          action: "Review market conditions and circuit breaker thresholds"
+
+  # Performance Degradation Alerts
+  - name: micro_lightning_performance
+    rules:
+      # Average profit declining
+      - alert: MicroLightningDecliningProfit
+        expr: micro_lightning:avg_profit_1h < 1.0
+        for: 15m
+        labels:
+          severity: warning
+          component: micro-lightning
+          commandment: performance
+        annotations:
+          summary: "Micro-Lightning average profit declining"
+          description: "Average profit per operation is ${{ $value }}, below $1 threshold"
+          action: "Review strategy parameters and market conditions"
+
+      # Hold time increasing beyond optimal range
+      - alert: MicroLightningLongHoldTimes
+        expr: micro_lightning:avg_hold_time_minutes > 30
+        for: 10m
+        labels:
+          severity: warning
+          component: micro-lightning
+          commandment: time_protocol
+        annotations:
+          summary: "Micro-Lightning hold times too long"
+          description: "Average hold time is {{ $value }} minutes, above 30-minute threshold"
+          action: "Review exit conditions and time protocol settings"
+
+      # High slippage impact
+      - alert: MicroLightningHighSlippage
+        expr: micro_lightning:avg_slippage_pct > 5.0
+        for: 5m
+        labels:
+          severity: warning
+          component: micro-lightning
+          commandment: execution
+        annotations:
+          summary: "Micro-Lightning experiencing high slippage"
+          description: "Average slippage is {{ $value }}%, above 5% threshold"
+          action: "Check liquidity conditions and adjust position sizes"
+
+      # Hard expiry rate too high
+      - alert: MicroLightningFrequentHardExpiry
+        expr: micro_lightning:hard_expiry_rate > 10
+        for: 10m
+        labels:
+          severity: warning
+          component: micro-lightning
+          commandment: time_protocol
+        annotations:
+          summary: "Frequent hard expiry exits detected"
+          description: "{{ $value }}% of positions reaching hard expiry"
+          action: "Review time protocol and exit strategy effectiveness"
+
+  # Market Condition Alerts
+  - name: micro_lightning_market_conditions
+    rules:
+      # Low token discovery rate
+      - alert: MicroLightningLowTokenDiscovery
+        expr: rate(micro_lightning_tokens_evaluated_total[1h]) < 10
+        for: 15m
+        labels:
+          severity: info
+          component: micro-lightning
+          commandment: market_conditions
+        annotations:
+          summary: "Low token discovery rate"
+          description: "Only {{ $value }} tokens evaluated per hour"
+          action: "Check Helius streamer and token filtering parameters"
+
+      # High honeypot detection rate
+      - alert: MicroLightningHighHoneypotRate
+        expr: |
+          (
+            rate(micro_lightning_honeypots_detected_total[1h]) /
+            rate(micro_lightning_tokens_evaluated_total[1h])
+          ) * 100 > 20
+        for: 10m
+        labels:
+          severity: warning
+          component: micro-lightning
+          commandment: security
+        annotations:
+          summary: "High honeypot detection rate"
+          description: "{{ $value }}% of evaluated tokens are honeypots"
+          action: "Review market conditions and consider reducing activity"

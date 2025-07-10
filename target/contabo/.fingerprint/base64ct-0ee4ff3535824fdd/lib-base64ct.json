@@ -1,1 +1,0 @@
-{"rustc":11410426090777951712,"features":"[\"alloc\"]","declared_features":"[\"alloc\", \"std\"]","target":15548948006327107948,"profile":13952719172529475294,"path":3070517937535290873,"deps":[],"local":[{"CheckDepInfo":{"dep_info":"contabo/.fingerprint/base64ct-0ee4ff3535824fdd/dep-lib-base64ct","checksum":false}}],"rustflags":[],"config":2069994364910194474,"compile_kind":0}

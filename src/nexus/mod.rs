@@ -229,6 +229,9 @@ impl NexusCore {
             adaptation_rate: config.plasticity_rate,
             max_adaptations_per_cycle: 100,
             stability_threshold: 0.9,
+            improvement_threshold: 0.05,
+            decay_rate: 0.01,
+            max_network_complexity: 1000,
         };
         
         let neural_plasticity = Arc::new(

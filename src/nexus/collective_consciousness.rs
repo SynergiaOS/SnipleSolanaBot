@@ -10,7 +10,8 @@ use anyhow::{Result, anyhow};
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use std::sync::{Arc, RwLock};
-use std::time::{Duration, Instant};
+use std::time::Duration;
+use chrono::{DateTime, Utc};
 use tokio::sync::{mpsc, RwLock as AsyncRwLock};
 use tracing::{debug, info, warn, error};
 use uuid::Uuid;
@@ -51,7 +52,7 @@ pub struct ConsciousnessPool {
     pub emotional_state: EmotionalState,
     pub memory_fragments: Vec<MemoryFragment>,
     pub contribution_weight: f64,
-    pub last_update: Instant,
+    pub last_update: DateTime<Utc>,
 }
 
 /// Knowledge base for consciousness
@@ -92,7 +93,7 @@ pub struct MemoryFragment {
     pub content: String,
     pub importance: f64,
     pub emotional_weight: f64,
-    pub timestamp: Instant,
+    pub timestamp: DateTime<Utc>,
     pub associations: Vec<String>,
 }
 
@@ -103,7 +104,7 @@ pub struct Fact {
     pub statement: String,
     pub certainty: f64,
     pub source: String,
-    pub timestamp: Instant,
+    pub timestamp: DateTime<Utc>,
 }
 
 /// Belief in knowledge base
@@ -113,7 +114,7 @@ pub struct Belief {
     pub statement: String,
     pub strength: f64,
     pub evidence: Vec<String>,
-    pub formed_at: Instant,
+    pub formed_at: DateTime<Utc>,
 }
 
 /// Experience
@@ -124,7 +125,7 @@ pub struct Experience {
     pub outcome: f64,
     pub lessons_learned: Vec<String>,
     pub emotional_impact: f64,
-    pub timestamp: Instant,
+    pub timestamp: DateTime<Utc>,
 }
 
 /// Learned pattern
@@ -147,7 +148,7 @@ pub struct CollectiveState {
     pub consensus_decisions: Vec<ConsensusDecision>,
     pub collective_emotions: EmotionalState,
     pub emergence_events: Vec<EmergenceEvent>,
-    pub last_emergence: Option<Instant>,
+    pub last_emergence: Option<DateTime<Utc>>,
 }
 
 /// Consensus decision
@@ -157,7 +158,7 @@ pub struct ConsensusDecision {
     pub decision: String,
     pub consensus_level: f64,
     pub participating_nodes: Vec<String>,
-    pub decision_time: Instant,
+    pub decision_time: DateTime<Utc>,
     pub outcome: Option<f64>,
 }
 
@@ -169,7 +170,7 @@ pub struct EmergenceEvent {
     pub emergence_level: f64,
     pub participating_nodes: Vec<String>,
     pub duration: Duration,
-    pub timestamp: Instant,
+    pub timestamp: DateTime<Utc>,
     pub insights_generated: Vec<String>,
 }
 
@@ -344,7 +345,7 @@ impl CollectiveConsciousnessEngine {
             emotional_state: EmotionalState::default(),
             memory_fragments: Vec::new(),
             contribution_weight: consciousness_level,
-            last_update: Instant::now(),
+            last_update: Utc::now(),
         };
         
         {
@@ -354,15 +355,18 @@ impl CollectiveConsciousnessEngine {
         
         // Update metrics
         {
-            let mut metrics = self.metrics.write().unwrap();
-            metrics.total_consciousness_pools += 1;
-            
-            // Recalculate average consciousness level
+            // Get pools data first
             let pools = self.consciousness_pools.read().await;
             let total_consciousness: f64 = pools.values()
                 .map(|p| p.consciousness_level)
                 .sum();
-            metrics.average_consciousness_level = total_consciousness / pools.len() as f64;
+            let pool_count = pools.len();
+            drop(pools); // Release the async lock before acquiring sync lock
+
+            // Now update metrics with sync lock
+            let mut metrics = self.metrics.write().unwrap();
+            metrics.total_consciousness_pools += 1;
+            metrics.average_consciousness_level = total_consciousness / pool_count as f64;
         }
         
         // Trigger consciousness update event
@@ -455,7 +459,7 @@ impl CollectiveConsciousnessEngine {
                             let mut pools = consciousness_pools.write().await;
                             if let Some(pool) = pools.get_mut(&node_id) {
                                 pool.consciousness_level = level;
-                                pool.last_update = Instant::now();
+                                pool.last_update = Utc::now();
                             }
                         }
                         
@@ -648,7 +652,7 @@ impl CollectiveConsciousnessEngine {
             emergence_level: 1.0,
             participating_nodes: Vec::new(), // Would be populated with actual nodes
             duration: Duration::from_secs(0), // Will be updated when event completes
-            timestamp: Instant::now(),
+            timestamp: Utc::now(),
             insights_generated: vec![
                 "Collective consciousness emergence achieved".to_string(),
                 "Swarm intelligence amplification active".to_string(),
@@ -658,7 +662,7 @@ impl CollectiveConsciousnessEngine {
         {
             let mut state = collective_state.write().await;
             state.emergence_events.push(emergence_event);
-            state.last_emergence = Some(Instant::now());
+            state.last_emergence = Some(Utc::now());
             state.emergence_level = 1.0;
         }
         
@@ -685,7 +689,7 @@ impl CollectiveConsciousnessEngine {
             decision: decision.to_string(),
             consensus_level: 0.95, // High consensus achieved
             participating_nodes: vec![node_id.to_string()], // Would include all participating nodes
-            decision_time: Instant::now(),
+            decision_time: Utc::now(),
             outcome: None,
         };
         
@@ -704,19 +708,20 @@ impl CollectiveConsciousnessEngine {
         metrics: &Arc<RwLock<ConsciousnessMetrics>>,
         emergence_threshold: f64,
     ) -> Result<()> {
-        let state = collective_state.read().await;
-        
-        if state.emergence_level > emergence_threshold {
+        let emergence_level = {
+            let state = collective_state.read().await;
+            state.emergence_level
+        };
+
+        if emergence_level > emergence_threshold {
             // Emergence detected!
-            drop(state);
-            
             let emergence_event = EmergenceEvent {
                 event_id: Uuid::new_v4().to_string(),
                 event_type: EmergenceType::InsightEmergence,
-                emergence_level: state.emergence_level,
+                emergence_level,
                 participating_nodes: Vec::new(),
                 duration: Duration::from_millis(100),
-                timestamp: Instant::now(),
+                timestamp: Utc::now(),
                 insights_generated: vec![
                     "Spontaneous insight emergence detected".to_string(),
                 ],
@@ -732,7 +737,7 @@ impl CollectiveConsciousnessEngine {
                 m.emergence_events += 1;
             }
             
-            info!("🌟 Emergence pattern detected! Level: {:.3}", state.emergence_level);
+            info!("🌟 Emergence pattern detected! Level: {:.3}", emergence_level);
         }
         
         Ok(())

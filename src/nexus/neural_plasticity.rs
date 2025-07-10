@@ -9,7 +9,8 @@ use anyhow::{Result, anyhow};
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use std::sync::{Arc, RwLock};
-use std::time::{Duration, Instant};
+use std::time::Duration;
+use chrono::{DateTime, Utc};
 use tokio::sync::{mpsc, RwLock as AsyncRwLock};
 use tracing::{debug, info, warn, error};
 use uuid::Uuid;
@@ -69,7 +70,7 @@ pub struct NeuralNetwork {
     pub performance_history: Vec<PerformanceSnapshot>,
     pub adaptation_count: u64,
     pub stability_score: f64,
-    pub last_adaptation: Instant,
+    pub last_adaptation: DateTime<Utc>,
 }
 
 /// Neural layer
@@ -113,7 +114,7 @@ pub struct NeuralConnection {
     pub weight: f64,
     pub plasticity_strength: f64,
     pub adaptation_rate: f64,
-    pub last_update: Instant,
+    pub last_update: DateTime<Utc>,
 }
 
 /// Activation function
@@ -136,11 +137,11 @@ pub struct AdaptationRecord {
     pub old_value: f64,
     pub new_value: f64,
     pub performance_delta: f64,
-    pub timestamp: Instant,
+    pub timestamp: DateTime<Utc>,
 }
 
 /// Type of adaptation
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
 pub enum AdaptationType {
     WeightAdjustment,
     BiasAdjustment,
@@ -150,13 +151,15 @@ pub enum AdaptationType {
     ConnectionGrowth,
     LayerAddition,
     LayerRemoval,
+    NeuronAddition,
+    NeuronRemoval,
 }
 
 /// Performance snapshot
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct PerformanceSnapshot {
     pub snapshot_id: String,
-    pub timestamp: Instant,
+    pub timestamp: DateTime<Utc>,
     pub accuracy: f64,
     pub loss: f64,
     pub latency: Duration,
@@ -267,6 +270,7 @@ pub enum ModificationType {
     NeuronRemoval,
     ConnectionAddition,
     ConnectionRemoval,
+    ConnectionPruning,
     ActivationChange,
     ArchitectureRedesign,
 }
@@ -446,7 +450,7 @@ impl NeuralPlasticityManager {
             performance_history: Vec::new(),
             adaptation_count: 0,
             stability_score: 1.0,
-            last_adaptation: Instant::now(),
+            last_adaptation: Utc::now(),
         }
     }
     
@@ -640,7 +644,7 @@ impl NeuralPlasticityManager {
                 if let Some(network) = networks.get_mut(network_id) {
                     // Simulate adaptation (in practice, this would involve complex neural network modifications)
                     network.adaptation_count += 1;
-                    network.last_adaptation = Instant::now();
+                    network.last_adaptation = Utc::now();
                     
                     // Adjust stability based on adaptation
                     network.stability_score = (network.stability_score * 0.9).max(0.1);
@@ -697,7 +701,7 @@ impl NeuralPlasticityManager {
             }
             
             network.adaptation_count += 1;
-            network.last_adaptation = Instant::now();
+            network.last_adaptation = Utc::now();
         }
     }
     
@@ -726,7 +730,7 @@ impl NeuralPlasticityManager {
             // Reset to more stable configuration
             network.stability_score = 0.8;
             network.adaptation_count += 1;
-            network.last_adaptation = Instant::now();
+            network.last_adaptation = Utc::now();
             
             info!("🚨 Emergency adaptation applied");
         }

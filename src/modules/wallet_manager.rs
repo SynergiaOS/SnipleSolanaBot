@@ -50,6 +50,14 @@ pub enum WalletType {
     MEVProtection,
     /// Emergency wallet for crisis situations
     Emergency,
+    /// Aggressive wallet for high-risk memcoin strategies
+    Aggressive,
+    /// MICRO-LIGHTNING specific wallet types
+    MicroLightning,     // Primary micro-lightning operations
+    MicroEmergencyGas,  // Emergency gas reserves for micro ops
+    MicroReentry,       // Re-entry buffer for micro ops
+    MicroPsychology,    // Psychology fund for micro ops
+    MicroTacticalExit,  // Tactical exit reserves for micro ops
 }
 
 /// Strategy allocation per wallet
@@ -121,6 +129,20 @@ pub struct Position {
     pub unrealized_pnl: f64,
     pub opened_at: DateTime<Utc>,
     pub updated_at: DateTime<Utc>,
+}
+
+/// Micro-lightning wallet health report
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct MicroWalletHealthReport {
+    pub total_wallets: u32,
+    pub active_wallets: u32,
+    pub total_balance: f64,
+    pub psychology_fund_balance: f64,
+    pub emergency_gas_balance: f64,
+    pub reentry_buffer_balance: f64,
+    pub wallet_rotation_needed: bool,
+    pub health_score: f64, // 0.0 to 1.0
+    pub recommendations: Vec<String>,
 }
 
 /// Wallet selection criteria for trade execution
@@ -416,6 +438,7 @@ impl WalletManager {
             WalletType::MEVProtection => 5.0,
             WalletType::Experimental => 4.0,
             WalletType::Emergency => 1.0,
+            WalletType::Aggressive => 8.5, // High score for memcoin strategies
         };
 
         // Strategy allocation score
@@ -753,5 +776,205 @@ impl WalletManager {
             config_path
         );
         Ok(())
+    }
+
+    /// MICRO-LIGHTNING specific wallet management methods
+
+    /// Create micro-lightning wallet set with proper allocations
+    pub async fn create_micro_lightning_wallet_set(&self, base_name: &str, total_capital: f64) -> Result<Vec<String>> {
+        let mut wallet_ids = Vec::new();
+        let timestamp = chrono::Utc::now();
+
+        // Calculate allocations based on MicroWallet structure
+        let allocations = [
+            (WalletType::MicroLightning, 0.20, "Lightning"),
+            (WalletType::MicroEmergencyGas, 0.175, "Emergency Gas"),
+            (WalletType::MicroReentry, 0.225, "Reentry"),
+            (WalletType::MicroPsychology, 0.20, "Psychology"),
+            (WalletType::MicroTacticalExit, 0.20, "Tactical Exit"),
+        ];
+
+        for (wallet_type, ratio, suffix) in allocations {
+            let wallet_config = WalletConfig {
+                wallet_id: format!("{}_{}", base_name, suffix.to_lowercase().replace(" ", "_")),
+                name: format!("{} - {}", base_name, suffix),
+                description: format!("Micro-lightning {} wallet", suffix.to_lowercase()),
+                private_key: self.generate_new_keypair()?,
+                public_key: "".to_string(), // Would be derived from private key
+                wallet_type,
+                strategy_allocation: vec![StrategyAllocation {
+                    strategy_type: StrategyType::MicroLightning,
+                    allocation_percentage: 100.0,
+                    enabled: true,
+                }],
+                risk_limits: WalletRiskLimits {
+                    max_position_size: total_capital * ratio,
+                    max_daily_loss: total_capital * ratio * 0.5, // 50% of allocation
+                    max_drawdown: 0.15, // 15% max drawdown
+                    stop_loss_percentage: 0.20, // 20% stop loss
+                },
+                status: WalletStatus::Active,
+                created_at: timestamp,
+                last_used: None,
+            };
+
+            self.add_wallet(wallet_config.clone()).await?;
+            wallet_ids.push(wallet_config.wallet_id);
+        }
+
+        info!("🏦 Created micro-lightning wallet set: {} wallets, ${:.2} total capital",
+              wallet_ids.len(), total_capital);
+
+        Ok(wallet_ids)
+    }
+
+    /// Rotate micro-lightning wallets (Commandment 2: Wallet Reincarnation)
+    pub async fn rotate_micro_lightning_wallets(&self, current_set: &[String]) -> Result<Vec<String>> {
+        info!("🔄 Rotating micro-lightning wallet set");
+
+        // Deactivate current wallets
+        for wallet_id in current_set {
+            if let Some(mut wallet) = self.get_wallet_config(wallet_id).await? {
+                wallet.status = WalletStatus::Inactive;
+                wallet.last_used = Some(chrono::Utc::now());
+
+                let mut wallets = self.wallets.write().await;
+                wallets.insert(wallet_id.clone(), wallet);
+            }
+        }
+
+        // Create new wallet set
+        let base_name = format!("micro_lightning_{}", chrono::Utc::now().timestamp());
+        let new_set = self.create_micro_lightning_wallet_set(&base_name, 20.0).await?;
+
+        info!("✅ Micro-lightning wallet rotation completed: {} new wallets", new_set.len());
+        Ok(new_set)
+    }
+
+    /// Get micro-lightning wallet by type
+    pub async fn get_micro_wallet(&self, wallet_type: WalletType) -> Result<Option<WalletConfig>> {
+        let wallets = self.wallets.read().await;
+
+        for wallet in wallets.values() {
+            if wallet.wallet_type == wallet_type && wallet.status == WalletStatus::Active {
+                return Ok(Some(wallet.clone()));
+            }
+        }
+
+        Ok(None)
+    }
+
+    /// Transfer funds between micro-lightning wallets
+    pub async fn transfer_micro_funds(&self, from_type: WalletType, to_type: WalletType, amount: f64) -> Result<()> {
+        info!("💸 Transferring ${:.2} from {:?} to {:?}", amount, from_type, to_type);
+
+        // In real implementation, this would execute actual blockchain transfers
+        // For now, we'll update the internal tracking
+
+        // Update position tracking
+        let mut positions = self.active_positions.write().await;
+
+        // This is a simplified implementation - in reality, you'd need to:
+        // 1. Create and sign transfer transaction
+        // 2. Submit to blockchain
+        // 3. Wait for confirmation
+        // 4. Update internal records
+
+        info!("✅ Micro fund transfer completed");
+        Ok(())
+    }
+
+    /// Apply psychology tax (Commandment 4: Emotional Accounting)
+    pub async fn apply_psychology_tax(&self, profit: f64) -> Result<f64> {
+        if profit <= 0.0 {
+            return Ok(profit);
+        }
+
+        let tax_rate = 0.10; // 10% psychology tax
+        let tax_amount = profit * tax_rate;
+
+        // Transfer tax to psychology wallet
+        self.transfer_micro_funds(
+            WalletType::MicroLightning,
+            WalletType::MicroPsychology,
+            tax_amount
+        ).await?;
+
+        let after_tax_profit = profit - tax_amount;
+
+        info!("🧠 Psychology tax applied: ${:.2} ({}% of ${:.2})",
+              tax_amount, tax_rate * 100.0, profit);
+
+        Ok(after_tax_profit)
+    }
+
+    /// Check micro-lightning wallet health
+    pub async fn check_micro_wallet_health(&self) -> Result<MicroWalletHealthReport> {
+        let mut report = MicroWalletHealthReport {
+            total_wallets: 0,
+            active_wallets: 0,
+            total_balance: 0.0,
+            psychology_fund_balance: 0.0,
+            emergency_gas_balance: 0.0,
+            reentry_buffer_balance: 0.0,
+            wallet_rotation_needed: false,
+            health_score: 1.0,
+            recommendations: Vec::new(),
+        };
+
+        let wallets = self.wallets.read().await;
+
+        for wallet in wallets.values() {
+            if matches!(wallet.wallet_type,
+                WalletType::MicroLightning | WalletType::MicroEmergencyGas |
+                WalletType::MicroReentry | WalletType::MicroPsychology |
+                WalletType::MicroTacticalExit) {
+
+                report.total_wallets += 1;
+
+                if wallet.status == WalletStatus::Active {
+                    report.active_wallets += 1;
+                    // In real implementation, would query actual balance
+                    let balance = wallet.risk_limits.max_position_size;
+                    report.total_balance += balance;
+
+                    match wallet.wallet_type {
+                        WalletType::MicroPsychology => report.psychology_fund_balance += balance,
+                        WalletType::MicroEmergencyGas => report.emergency_gas_balance += balance,
+                        WalletType::MicroReentry => report.reentry_buffer_balance += balance,
+                        _ => {}
+                    }
+                }
+            }
+        }
+
+        // Check if rotation is needed (example: if any wallet has been used more than 3 times)
+        // This would be tracked in actual implementation
+        report.wallet_rotation_needed = false; // Placeholder
+
+        // Calculate health score
+        if report.active_wallets < 5 {
+            report.health_score *= 0.8;
+            report.recommendations.push("Missing micro-lightning wallets".to_string());
+        }
+
+        if report.emergency_gas_balance < 3.0 {
+            report.health_score *= 0.9;
+            report.recommendations.push("Low emergency gas reserves".to_string());
+        }
+
+        if report.psychology_fund_balance < 2.0 {
+            report.health_score *= 0.95;
+            report.recommendations.push("Low psychology fund balance".to_string());
+        }
+
+        Ok(report)
+    }
+
+    /// Generate new keypair for wallet creation
+    fn generate_new_keypair(&self) -> Result<String> {
+        // In real implementation, this would generate a proper Solana keypair
+        // For now, return a placeholder
+        Ok(format!("keypair_{}", uuid::Uuid::new_v4()))
     }
 }

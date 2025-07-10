@@ -2,10 +2,20 @@
 // Analyzes market data and generates trading signals
 
 use crate::modules::data_ingestor::MarketData;
+use crate::modules::memcoin_strategies::{
+    MemcoinStrategy, LiquidityEvent, SocialSignal, WhaleTransaction,
+    liquidity_tsunami::LiquidityTsunamiStrategy,
+    social_fission::SocialFissionStrategy,
+    whale_shadowing::WhaleShadowingStrategy,
+    death_spiral_intercept::{DeathSpiralInterceptStrategy, PanicSellEvent},
+    meme_virus::MemeVirusStrategy,
+};
 use anyhow::Result;
 use serde::{Deserialize, Serialize};
-use tokio::sync::mpsc;
-use tracing::{debug, error, info};
+use std::collections::HashMap;
+use std::sync::Arc;
+use tokio::sync::{mpsc, RwLock};
+use tracing::{debug, error, info, warn};
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct TradingSignal {
@@ -24,6 +34,8 @@ pub enum TradeAction {
     Buy,
     Sell,
     Hold,
+    MarketBuy,
+    MarketSell,
 }
 
 impl std::fmt::Display for TradeAction {
@@ -32,6 +44,8 @@ impl std::fmt::Display for TradeAction {
             TradeAction::Buy => write!(f, "BUY"),
             TradeAction::Sell => write!(f, "SELL"),
             TradeAction::Hold => write!(f, "HOLD"),
+            TradeAction::MarketBuy => write!(f, "MARKET_BUY"),
+            TradeAction::MarketSell => write!(f, "MARKET_SELL"),
         }
     }
 }
@@ -55,6 +69,14 @@ pub enum StrategyType {
     FlashLoanArbitrage, // Flash loan arbitrage
     YieldFarming,       // Yield farming optimization
     OptionsStrategy,    // Options trading strategies
+    // MICRO-LIGHTNING STRATEGY
+    MicroLightning,     // High-frequency micro-operations ($20/60min)
+    // MEMCOIN SWARMGUARD STRATEGIES - ARCHITEKTURA WOJENNA
+    LiquidityTsunami,      // Wykorzystanie nagłych zmian płynności
+    SocialFission,         // Eksploatacja hype'u społecznościowego
+    WhaleShadowing,        // Śledzenie i preemptywne działanie za wielorybami
+    DeathSpiralIntercept,  // Krótkoterminowe wykorzystanie panic sells
+    MemeVirus,             // Długoterminowe trendy memcoinowe
 }
 
 impl std::fmt::Display for StrategyType {
@@ -76,6 +98,12 @@ impl std::fmt::Display for StrategyType {
             StrategyType::FlashLoanArbitrage => write!(f, "flash_loan_arbitrage"),
             StrategyType::YieldFarming => write!(f, "yield_farming"),
             StrategyType::OptionsStrategy => write!(f, "options_strategy"),
+            // MEMCOIN SWARMGUARD STRATEGIES
+            StrategyType::LiquidityTsunami => write!(f, "liquidity_tsunami"),
+            StrategyType::SocialFission => write!(f, "social_fission"),
+            StrategyType::WhaleShadowing => write!(f, "whale_shadowing"),
+            StrategyType::DeathSpiralIntercept => write!(f, "death_spiral_intercept"),
+            StrategyType::MemeVirus => write!(f, "meme_virus"),
         }
     }
 }
@@ -84,6 +112,13 @@ pub struct StrategyEngine {
     market_data_receiver: mpsc::UnboundedReceiver<MarketData>,
     signal_sender: mpsc::UnboundedSender<TradingSignal>,
     is_running: bool,
+    // MEMCOIN SWARMGUARD STRATEGIES - używamy enum zamiast trait object
+    liquidity_tsunami: Option<LiquidityTsunamiStrategy>,
+    social_fission: Option<SocialFissionStrategy>,
+    whale_shadowing: Option<WhaleShadowingStrategy>,
+    death_spiral_intercept: Option<DeathSpiralInterceptStrategy>,
+    meme_virus: Option<MemeVirusStrategy>,
+    capital: f64,
 }
 
 #[allow(dead_code)]
@@ -96,7 +131,56 @@ impl StrategyEngine {
             market_data_receiver,
             signal_sender,
             is_running: false,
+            liquidity_tsunami: None,
+            social_fission: None,
+            whale_shadowing: None,
+            death_spiral_intercept: None,
+            meme_virus: None,
+            capital: 10000.0, // Default capital
         }
+    }
+
+    /// Inicjalizacja strategii memcoin
+    pub fn initialize_memcoin_strategies(&mut self) -> Result<()> {
+        // Inicjalizuj wszystkie strategie MEMCOIN SWARMGUARD
+        self.liquidity_tsunami = Some(LiquidityTsunamiStrategy::new(self.capital));
+        self.social_fission = Some(SocialFissionStrategy::new(self.capital));
+        self.whale_shadowing = Some(WhaleShadowingStrategy::new(self.capital));
+        self.death_spiral_intercept = Some(DeathSpiralInterceptStrategy::new(self.capital));
+        self.meme_virus = Some(MemeVirusStrategy::new(self.capital));
+
+        info!("🦾 MEMCOIN SWARMGUARD strategies initialized: 5 strategies loaded");
+        Ok(())
+    }
+
+    /// Aktywacja wszystkich strategii memcoin
+    pub async fn activate_memcoin_strategies(&mut self) -> Result<()> {
+        if let Some(ref mut strategy) = self.liquidity_tsunami {
+            strategy.activate().await?;
+            info!("✅ Activated LIQUIDITY TSUNAMI strategy");
+        }
+
+        if let Some(ref mut strategy) = self.social_fission {
+            strategy.activate().await?;
+            info!("✅ Activated SOCIAL FISSION strategy");
+        }
+
+        if let Some(ref mut strategy) = self.whale_shadowing {
+            strategy.activate().await?;
+            info!("✅ Activated WHALE SHADOWING strategy");
+        }
+
+        if let Some(ref mut strategy) = self.death_spiral_intercept {
+            strategy.activate().await?;
+            info!("✅ Activated DEATH SPIRAL INTERCEPT strategy");
+        }
+
+        if let Some(ref mut strategy) = self.meme_virus {
+            strategy.activate().await?;
+            info!("✅ Activated MEME VIRUS strategy");
+        }
+
+        Ok(())
     }
 
     pub async fn start(&mut self) -> Result<()> {
@@ -119,6 +203,9 @@ impl StrategyEngine {
 
     async fn process_market_data(&self, data: MarketData) -> Result<()> {
         debug!("Processing market data for symbol: {}", data.symbol);
+
+        // Przetwarzanie przez strategie memcoin
+        self.process_memcoin_signals(&data).await?;
 
         // TODO: Implement actual trading strategies
         // For now, generate a simple signal occasionally
@@ -149,6 +236,97 @@ impl StrategyEngine {
             if let Err(e) = self.signal_sender.send(signal) {
                 error!("Failed to send trading signal: {}", e);
             }
+        }
+
+        Ok(())
+    }
+
+    /// Przetwarzanie sygnałów przez strategie memcoin
+    async fn process_memcoin_signals(&self, data: &MarketData) -> Result<()> {
+
+        // Generuj różne typy sygnałów na podstawie market data
+
+        // 1. LIQUIDITY TSUNAMI - symulacja liquidity event
+        if data.volume > 1000.0 {
+            let liquidity_event = LiquidityEvent {
+                mint: data.symbol.clone(),
+                delta: data.volume * 0.05, // 5% of volume as delta
+                velocity: (data.price_change_24h.abs() / 100.0).min(1.0),
+                volatility: data.price_change_24h.abs() / 100.0,
+                timestamp: chrono::Utc::now(),
+            };
+
+            if let Some(ref strategy) = self.liquidity_tsunami {
+                if let Ok(Some(signal)) = strategy.process_signal(&liquidity_event).await {
+                    self.send_signal(signal).await?;
+                }
+            }
+        }
+
+        // 2. SOCIAL FISSION - symulacja social signal
+        if data.price_change_1h > 5.0 {
+            let social_signal = SocialSignal {
+                token: data.symbol.clone(),
+                intensity: (data.price_change_1h * 10.0).min(100.0) as f32,
+                sentiment: if data.price_change_1h > 0.0 { 0.8 } else { -0.8 },
+                mentions_count: (data.volume / 100.0) as u32,
+                source: "twitter".to_string(),
+                timestamp: chrono::Utc::now(),
+            };
+
+            if let Some(ref strategy) = self.social_fission {
+                if let Ok(Some(signal)) = strategy.process_signal(&social_signal).await {
+                    self.send_signal(signal).await?;
+                }
+            }
+        }
+
+        // 3. DEATH SPIRAL INTERCEPT - symulacja panic sell
+        if data.price_change_1h < -15.0 && data.volume > 500.0 {
+            let panic_event = PanicSellEvent {
+                token: data.symbol.clone(),
+                volume_percentage: ((data.volume / 10000.0) * 100.0) as f32, // Symulacja % podaży
+                price_drop: data.price_change_1h.abs() as f32,
+                sell_transactions: vec![], // Placeholder
+                timestamp: chrono::Utc::now(),
+            };
+
+            if let Some(ref strategy) = self.death_spiral_intercept {
+                if let Ok(Some(signal)) = strategy.process_signal(&panic_event).await {
+                    self.send_signal(signal).await?;
+                }
+            }
+        }
+
+        // 4. MEME VIRUS - symulacja viral meme
+        if data.price_change_24h > 50.0 {
+            let social_signal = SocialSignal {
+                token: data.symbol.clone(),
+                intensity: 95.0,
+                sentiment: 0.9,
+                mentions_count: 50,
+                source: "viral meme detected".to_string(),
+                timestamp: chrono::Utc::now(),
+            };
+
+            if let Some(ref strategy) = self.meme_virus {
+                if let Ok(Some(signal)) = strategy.process_signal(&social_signal).await {
+                    self.send_signal(signal).await?;
+                }
+            }
+        }
+
+        Ok(())
+    }
+
+    /// Wysłanie sygnału handlowego
+    async fn send_signal(&self, signal: TradingSignal) -> Result<()> {
+        info!("🎯 MEMCOIN SWARMGUARD signal: {:?} {} {} SOL (confidence: {})",
+              signal.strategy_type, signal.action, signal.quantity, signal.confidence);
+
+        if let Err(e) = self.signal_sender.send(signal) {
+            error!("Failed to send memcoin trading signal: {}", e);
+            return Err(anyhow::anyhow!("Failed to send signal"));
         }
 
         Ok(())

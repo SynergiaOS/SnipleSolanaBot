@@ -281,9 +281,12 @@ impl MEVArbitrageStrategy {
             action: TradeAction::Buy, // Start with buy on cheaper DEX
             quantity: opportunity.max_trade_size,
             target_price: opportunity.buy_price,
+            price: Some(opportunity.buy_price),
             confidence: opportunity.confidence_score,
             timestamp: Utc::now(),
             strategy_type: StrategyType::MEVArbitrage,
+            urgency: None,
+            metadata: None,
         })
     }
 

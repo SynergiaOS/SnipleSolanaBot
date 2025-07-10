@@ -307,9 +307,12 @@ impl DAMMOpportunity {
             action: TradeAction::Buy,
             quantity: self.recommended_position_size,
             target_price: 0.001, // Very early entry price
+            price: Some(0.001),
             confidence: self.calculate_confidence(),
             timestamp: chrono::Utc::now(),
             strategy_type: StrategyType::MeteoraDAMM,
+            urgency: None,
+            metadata: None,
         }
     }
 

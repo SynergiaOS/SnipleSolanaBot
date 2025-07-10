@@ -224,9 +224,12 @@ impl SocialFissionStrategy {
             action: TradeAction::Buy,
             quantity: position_size,
             target_price: 0.0, // Market order
+            price: None, // Market order
             confidence: confidence as f64,
             timestamp: chrono::Utc::now(),
             strategy_type: StrategyType::SocialFission,
+            urgency: None,
+            metadata: None,
         })
     }
 

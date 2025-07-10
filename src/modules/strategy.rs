@@ -24,9 +24,20 @@ pub struct TradingSignal {
     pub action: TradeAction,
     pub quantity: f64,
     pub target_price: f64,
+    pub price: Option<f64>,  // Dodane dla micro-lightning
     pub confidence: f64,
     pub timestamp: chrono::DateTime<chrono::Utc>,
     pub strategy_type: StrategyType,
+    pub urgency: Option<UrgencyLevel>,  // Dodane dla micro-lightning
+    pub metadata: Option<serde_json::Value>,  // Dodane dla micro-lightning
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub enum UrgencyLevel {
+    Flash,    // <120ms execution
+    Rapid,    // <500ms execution
+    Normal,   // <2s execution
+    Delayed,  // >2s execution
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -77,6 +88,8 @@ pub enum StrategyType {
     WhaleShadowing,        // Śledzenie i preemptywne działanie za wielorybami
     DeathSpiralIntercept,  // Krótkoterminowe wykorzystanie panic sells
     MemeVirus,             // Długoterminowe trendy memcoinowe
+    // PHOENIX ENGINE - ULTRA-WYDAJNY BOT MEMCOIN v2.1
+    PhoenixEngine,         // Zaawansowana ewolucja micro-lightning z Jito bundle, adaptive risk, whale monitoring
 }
 
 impl std::fmt::Display for StrategyType {
@@ -104,6 +117,8 @@ impl std::fmt::Display for StrategyType {
             StrategyType::WhaleShadowing => write!(f, "whale_shadowing"),
             StrategyType::DeathSpiralIntercept => write!(f, "death_spiral_intercept"),
             StrategyType::MemeVirus => write!(f, "meme_virus"),
+            StrategyType::MicroLightning => write!(f, "micro_lightning"),
+            StrategyType::PhoenixEngine => write!(f, "phoenix_engine"),
         }
     }
 }
@@ -228,9 +243,12 @@ impl StrategyEngine {
                 action: TradeAction::Buy,
                 quantity,
                 target_price,
+                price: Some(data.price),
                 confidence: 0.7 * (1.0 - slippage), // Lower confidence with higher slippage
                 timestamp: chrono::Utc::now(),
                 strategy_type: StrategyType::TokenSniping,
+                urgency: None,
+                metadata: None,
             };
 
             if let Err(e) = self.signal_sender.send(signal) {

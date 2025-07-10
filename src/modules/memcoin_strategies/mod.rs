@@ -15,6 +15,7 @@ pub mod social_fission;
 pub mod whale_shadowing;
 pub mod death_spiral_intercept;
 pub mod meme_virus;
+pub mod phoenix_engine;
 
 use anyhow::Result;
 use async_trait::async_trait;
@@ -103,6 +104,11 @@ pub struct MemcoinStrategyParams {
     pub profit_target: f32,         // Cel zysku w procentach
     pub stop_loss: f32,             // Stop loss w procentach
     pub max_hold_time: Duration,    // Maksymalny czas trzymania pozycji
+    // Dodatkowe pola dla micro-lightning
+    pub strategy_type: Option<StrategyType>, // Typ strategii
+    pub time_horizon_minutes: Option<u32>,   // Horyzont czasowy w minutach
+    pub urgency_level: Option<UrgencyLevel>, // Poziom pilności
+    pub enabled: Option<bool>,               // Czy strategia jest włączona
 }
 
 impl Default for MemcoinStrategyParams {
@@ -114,6 +120,10 @@ impl Default for MemcoinStrategyParams {
             profit_target: 8.0,
             stop_loss: 5.0,
             max_hold_time: Duration::from_secs(300), // 5 minut
+            strategy_type: None,
+            time_horizon_minutes: None,
+            urgency_level: None,
+            enabled: None,
         }
     }
 }
@@ -152,6 +162,14 @@ pub struct StrategyMetrics {
     pub avg_trade_duration: Duration, // Średni czas transakcji
     pub total_trades: u32,          // Łączna liczba transakcji
     pub profitable_trades: u32,     // Liczba zyskownych transakcji
+    // Dodatkowe pola dla micro-lightning
+    pub total_signals: u32,         // Łączna liczba sygnałów
+    pub successful_trades: u32,     // Liczba udanych transakcji
+    pub total_profit: f64,          // Łączny zysk
+    pub avg_hold_time: f32,         // Średni czas trzymania w minutach
+    pub emergency_exits: u32,       // Liczba awaryjnych wyjść
+    pub last_emergency: Option<std::time::SystemTime>, // Ostatnie awaryjne wyjście
+    pub activation_time: Option<std::time::SystemTime>, // Czas aktywacji
 }
 
 impl Default for StrategyMetrics {
@@ -163,6 +181,13 @@ impl Default for StrategyMetrics {
             avg_trade_duration: Duration::from_secs(0),
             total_trades: 0,
             profitable_trades: 0,
+            total_signals: 0,
+            successful_trades: 0,
+            total_profit: 0.0,
+            avg_hold_time: 0.0,
+            emergency_exits: 0,
+            last_emergency: None,
+            activation_time: None,
         }
     }
 }
@@ -186,3 +211,15 @@ impl Default for KineticShieldConfig {
         }
     }
 }
+
+// PHOENIX ENGINE v2.1 - ULTRA-WYDAJNY BOT MEMCOIN exports
+pub use phoenix_engine::{
+    PhoenixEngine, PhoenixConfig, PhoenixPosition, PhoenixMetrics, PhoenixAllMetrics,
+    JitoBundleManager, BundleResult, BundleStatus, BundleMetrics,
+    AdaptiveRiskManager, RiskMetrics,
+    WhaleMonitor, WhalePosition, WhaleAlert, WhaleMetrics,
+    ArbitrageEngine, DexPrice, ArbitrageOpportunity, ArbitrageMetrics,
+    EmergencyExitSystem, EmergencyAction, EmergencyMetrics,
+    MarketSignal
+};
+pub use phoenix_engine::WhaleAction as PhoenixWhaleAction;

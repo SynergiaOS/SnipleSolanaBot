@@ -201,6 +201,8 @@ impl MultiWalletConfig {
                 max_exposure_percentage: 20.0,
                 stop_loss_threshold: 2.0,
                 daily_trade_limit: 10,
+                max_drawdown: 0.10,
+                stop_loss_percentage: 0.15,
             },
             "medium" | "moderate" => WalletRiskLimits {
                 max_daily_loss: 500.0,
@@ -209,6 +211,8 @@ impl MultiWalletConfig {
                 max_exposure_percentage: 50.0,
                 stop_loss_threshold: 3.0,
                 daily_trade_limit: 25,
+                max_drawdown: 0.15,
+                stop_loss_percentage: 0.20,
             },
             "high" | "aggressive" => WalletRiskLimits {
                 max_daily_loss: 2000.0,
@@ -217,6 +221,8 @@ impl MultiWalletConfig {
                 max_exposure_percentage: 80.0,
                 stop_loss_threshold: 5.0,
                 daily_trade_limit: 50,
+                max_drawdown: 0.25,
+                stop_loss_percentage: 0.30,
             },
             "experimental" => WalletRiskLimits {
                 max_daily_loss: 50.0,
@@ -225,6 +231,8 @@ impl MultiWalletConfig {
                 max_exposure_percentage: 10.0,
                 stop_loss_threshold: 1.0,
                 daily_trade_limit: 5,
+                max_drawdown: 0.05,
+                stop_loss_percentage: 0.10,
             },
             _ => return Err(anyhow!("Invalid risk profile: {}", risk_profile)),
         };
@@ -237,6 +245,8 @@ impl MultiWalletConfig {
             max_exposure_percentage: base_limits.max_exposure_percentage,
             stop_loss_threshold: base_limits.stop_loss_threshold,
             daily_trade_limit: base_limits.daily_trade_limit,
+            max_drawdown: base_limits.max_drawdown,
+            stop_loss_percentage: base_limits.stop_loss_percentage,
         })
     }
 

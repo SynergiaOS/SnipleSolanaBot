@@ -281,7 +281,7 @@ impl ExitSystem {
     }
 
     /// Get recent social mentions within time window
-    fn get_recent_mentions(&self, mentions: &[SocialMention]) -> Vec<&SocialMention> {
+    fn get_recent_mentions<'a>(&self, mentions: &'a [SocialMention]) -> Vec<&'a SocialMention> {
         let cutoff_time = SystemTime::now() - Duration::from_secs(
             self.sentiment_detector.sentiment_window_minutes as u64 * 60
         );
@@ -451,7 +451,7 @@ pub fn get_exit_recommendation(exit_system: &mut ExitSystem, context: &TradeCont
 
 /// Calculate overall risk score
 fn calculate_risk_score(context: &TradeContext) -> f64 {
-    let mut risk = 0.0;
+    let mut risk: f64 = 0.0;
 
     // Profit/loss risk
     if context.profit < -0.1 {

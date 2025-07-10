@@ -266,6 +266,8 @@ impl MultiWalletExecutor {
             StrategyType::WhaleShadowing => Some(WalletType::Aggressive),
             StrategyType::DeathSpiralIntercept => Some(WalletType::Experimental),
             StrategyType::MemeVirus => Some(WalletType::Aggressive),
+            StrategyType::MicroLightning => Some(WalletType::MicroLightning),
+            StrategyType::PhoenixEngine => Some(WalletType::Aggressive),
         }
     }
 

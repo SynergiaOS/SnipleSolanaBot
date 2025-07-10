@@ -963,9 +963,12 @@ impl AIConnector {
             action,
             quantity: ai_decision.quantity,
             target_price: ai_decision.target_price.unwrap_or(0.0),
+            price: ai_decision.target_price,
             confidence: ai_decision.confidence,
             timestamp: ai_decision.timestamp,
             strategy_type: StrategyType::AIDecision, // New strategy type for AI decisions
+            urgency: None,
+            metadata: None,
         })
     }
 
@@ -1211,9 +1214,12 @@ impl AIConnector {
             action,
             quantity: ai_decision.quantity,
             target_price: ai_decision.target_price.unwrap_or(0.0),
+            price: ai_decision.target_price,
             confidence: ai_decision.confidence,
             timestamp: ai_decision.timestamp,
             strategy_type: StrategyType::AIDecision, // New strategy type for AI decisions
+            urgency: None,
+            metadata: None,
         })
     }
 

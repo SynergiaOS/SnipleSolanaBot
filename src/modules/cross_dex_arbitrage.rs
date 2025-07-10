@@ -477,9 +477,12 @@ impl CrossDexArbitrageStrategy {
             action: first_step.action.clone(),
             quantity: first_step.input_amount,
             target_price: first_step.expected_output / first_step.input_amount,
+            price: Some(first_step.expected_output / first_step.input_amount),
             confidence: opportunity.confidence_score,
             timestamp: Utc::now(),
             strategy_type: StrategyType::CrossDexArbitrage,
+            urgency: None,
+            metadata: None,
         })
     }
 

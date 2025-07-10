@@ -328,9 +328,12 @@ impl TokenLaunch {
             action: TradeAction::Buy,
             quantity: 25.0, // Small position for very early entry
             target_price: self.initial_market_cap / 1_000_000.0,
+            price: Some(self.initial_market_cap / 1_000_000.0),
             confidence: self.predicted_success_probability,
             timestamp: chrono::Utc::now(),
             strategy_type: StrategyType::DeveloperTracking,
+            urgency: None,
+            metadata: None,
         }
     }
 }

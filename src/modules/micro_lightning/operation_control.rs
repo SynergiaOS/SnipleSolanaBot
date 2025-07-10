@@ -146,8 +146,9 @@ impl OperationControl {
     /// Create operation control with custom configuration
     pub fn with_config(config: CommandmentConfig) -> Self {
         let mut control = Self::new();
+        let psychology_balance = config.min_psychology_fund_balance;
         control.config = config;
-        control.psychology_fund_balance = config.min_psychology_fund_balance;
+        control.psychology_fund_balance = psychology_balance;
         control
     }
 

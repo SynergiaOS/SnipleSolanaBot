@@ -215,9 +215,12 @@ impl DeathSpiralInterceptStrategy {
             action: TradeAction::Buy,
             quantity: position_size,
             target_price,
+            price: None, // Market order
             confidence: confidence as f64,
             timestamp: chrono::Utc::now(),
             strategy_type: StrategyType::DeathSpiralIntercept,
+            urgency: None,
+            metadata: None,
         })
     }
 
@@ -247,9 +250,12 @@ impl DeathSpiralInterceptStrategy {
                     action: TradeAction::Sell,
                     quantity: position.quantity,
                     target_price: 0.0, // Market order dla szybkości
+                    price: None, // Market order
                     confidence: 0.9,
                     timestamp: now,
                     strategy_type: StrategyType::DeathSpiralIntercept,
+                    urgency: None,
+                    metadata: None,
                 };
                 
                 exit_signals.push(exit_signal);

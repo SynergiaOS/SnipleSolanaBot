@@ -61,7 +61,7 @@ impl TokenData {
 
     /// Calculate risk score based on multiple factors
     pub fn calculate_risk_score(&mut self) {
-        let mut risk = 0.0;
+        let mut risk: f64 = 0.0;
 
         // Age risk (higher risk for very new tokens)
         if self.age_minutes < 5 {

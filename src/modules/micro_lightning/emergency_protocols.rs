@@ -337,8 +337,14 @@ pub fn panic_exit(trigger: EmergencyTrigger, position: &Position) -> EmergencyEx
 
     // Step 6: Activate circuit breaker for severe cases
     match &trigger {
-        EmergencyTrigger::HoneypotDetected { .. } |
-        EmergencyTrigger::MassiveDump { price_drop_percentage, .. } if *price_drop_percentage > 0.6 => {
+        EmergencyTrigger::HoneypotDetected { .. } => {
+            actions.push(Action::ActivateCircuitBreaker {
+                duration_minutes: 30,
+            });
+            execution_order.push(action_index);
+            action_index += 1;
+        },
+        EmergencyTrigger::MassiveDump { price_drop_percentage, .. } if price_drop_percentage > &0.6 => {
             actions.push(Action::ActivateCircuitBreaker {
                 duration_minutes: 30,
             });

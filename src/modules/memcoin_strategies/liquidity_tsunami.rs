@@ -215,9 +215,12 @@ impl MemcoinStrategy for LiquidityTsunamiStrategy {
                     },
                     quantity: trade_bundle.amount,
                     target_price: 0.0, // Market order
+                    price: None, // Market order
                     confidence: (liquidity_event.velocity * 0.8 + 0.2).min(1.0),
                     timestamp: chrono::Utc::now(),
                     strategy_type: StrategyType::LiquidityTsunami,
+                    urgency: None,
+                    metadata: None,
                 };
 
                 return Ok(Some(trading_signal));

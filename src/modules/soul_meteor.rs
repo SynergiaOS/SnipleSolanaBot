@@ -194,9 +194,12 @@ impl PoolAnalysis {
             action: TradeAction::Buy,
             quantity: base_quantity,
             target_price: self.estimate_entry_price(),
+            price: Some(self.estimate_entry_price()),
             confidence,
             timestamp: chrono::Utc::now(),
             strategy_type: StrategyType::SoulMeteorSniping,
+            urgency: None,
+            metadata: None,
         }
     }
 

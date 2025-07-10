@@ -19,7 +19,7 @@ use tower::ServiceBuilder;
 use tower_http::cors::CorsLayer;
 use tracing::{info, warn, error};
 
-use snipercor::modules::micro_lightning::{
+use overmind_protocol::modules::micro_lightning::{
     OperationControl, OperationStatistics, MicroTradingStats, StatusReport,
     MetricsCollector, MicroWalletHealthReport
 };
@@ -348,7 +348,7 @@ async fn create_alert(
         alert_history.remove(0);
     }
 
-    info!("🚨 Alert created: {} - {}", alert.severity, alert.message);
+    info!("🚨 Alert created: {:?} - {}", alert.severity, alert.message);
     Ok(Json(alert))
 }
 

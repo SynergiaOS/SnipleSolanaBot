@@ -263,9 +263,12 @@ impl MemeVirusStrategy {
             action,
             quantity: position_size,
             target_price: 0.0, // Market order
+            price: None, // Market order
             confidence,
             timestamp: chrono::Utc::now(),
             strategy_type: StrategyType::MemeVirus,
+            urgency: None,
+            metadata: None,
         })
     }
 

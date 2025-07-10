@@ -253,9 +253,12 @@ impl WhaleShadowingStrategy {
             action,
             quantity: position_size,
             target_price: 0.0, // Market order dla szybkości
+            price: None, // Market order
             confidence,
             timestamp: chrono::Utc::now(),
             strategy_type: StrategyType::WhaleShadowing,
+            urgency: None,
+            metadata: None,
         })
     }
 

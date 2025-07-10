@@ -78,6 +78,9 @@ pub struct WalletRiskLimits {
     pub max_exposure_percentage: f64, // % of wallet balance
     pub stop_loss_threshold: f64,
     pub daily_trade_limit: u32,
+    // Dodatkowe pola dla micro-lightning
+    pub max_drawdown: f64,           // Maksymalny spadek
+    pub stop_loss_percentage: f64,   // Procent stop loss
 }
 
 /// Wallet operational status
@@ -439,6 +442,12 @@ impl WalletManager {
             WalletType::Experimental => 4.0,
             WalletType::Emergency => 1.0,
             WalletType::Aggressive => 8.5, // High score for memcoin strategies
+            // Micro-lightning wallet types
+            WalletType::MicroLightning => 9.5,
+            WalletType::MicroEmergencyGas => 2.0,
+            WalletType::MicroReentry => 7.5,
+            WalletType::MicroPsychology => 3.0,
+            WalletType::MicroTacticalExit => 6.0,
         };
 
         // Strategy allocation score
@@ -588,6 +597,8 @@ impl Default for WalletRiskLimits {
             max_exposure_percentage: 80.0,
             stop_loss_threshold: 5.0,
             daily_trade_limit: 100,
+            max_drawdown: 0.15,
+            stop_loss_percentage: 0.20,
         }
     }
 }
@@ -805,11 +816,16 @@ impl WalletManager {
                 strategy_allocation: vec![StrategyAllocation {
                     strategy_type: StrategyType::MicroLightning,
                     allocation_percentage: 100.0,
+                    max_position_size: total_capital * ratio * 0.8, // 80% of allocation
                     enabled: true,
                 }],
                 risk_limits: WalletRiskLimits {
-                    max_position_size: total_capital * ratio,
                     max_daily_loss: total_capital * ratio * 0.5, // 50% of allocation
+                    max_position_size: total_capital * ratio,
+                    max_concurrent_positions: 5,
+                    max_exposure_percentage: 80.0,
+                    stop_loss_threshold: 0.05, // 5%
+                    daily_trade_limit: 100,
                     max_drawdown: 0.15, // 15% max drawdown
                     stop_loss_percentage: 0.20, // 20% stop loss
                 },
@@ -834,7 +850,7 @@ impl WalletManager {
 
         // Deactivate current wallets
         for wallet_id in current_set {
-            if let Some(mut wallet) = self.get_wallet_config(wallet_id).await? {
+            if let Ok(mut wallet) = self.get_wallet(wallet_id).await {
                 wallet.status = WalletStatus::Inactive;
                 wallet.last_used = Some(chrono::Utc::now());
 

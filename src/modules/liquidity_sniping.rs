@@ -553,9 +553,12 @@ impl LiquiditySnipingStrategy {
             action: opportunity.recommended_action.clone(),
             quantity: opportunity.max_position_size,
             target_price: opportunity.optimal_entry_price,
+            price: Some(opportunity.optimal_entry_price),
             confidence: opportunity.confidence_score,
             timestamp: Utc::now(),
             strategy_type: StrategyType::LiquiditySniping,
+            urgency: None,
+            metadata: None,
         })
     }
 

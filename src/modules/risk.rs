@@ -274,7 +274,9 @@ impl RiskManager {
             crate::modules::strategy::StrategyType::SocialFission => 0.8, // Very high risk - social hype
             crate::modules::strategy::StrategyType::WhaleShadowing => 0.6, // High risk - whale following
             crate::modules::strategy::StrategyType::DeathSpiralIntercept => 0.9, // Extreme risk - panic sells
-            crate::modules::strategy::StrategyType::MemeVirus => 0.8, // Very high risk - meme cycles
+            crate::modules::strategy::StrategyType::MemeVirus => 0.8,
+            crate::modules::strategy::StrategyType::MicroLightning => 0.9, // Very high risk - micro operations
+            crate::modules::strategy::StrategyType::PhoenixEngine => 0.85, // High risk but adaptive // Very high risk - meme cycles
         };
 
         Ok(risk_score.min(1.0))

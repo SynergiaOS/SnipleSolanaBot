@@ -7,19 +7,22 @@ use anyhow::Result;
 use async_trait::async_trait;
 use serde::{Deserialize, Serialize};
 use std::sync::Arc;
+use std::time::Duration;
 use tokio::sync::RwLock;
 use tracing::{debug, info, warn, error};
 
-use crate::modules::strategy::{TradingSignal, TradeAction, StrategyType};
+use crate::modules::strategy::{TradingSignal, TradeAction, StrategyType, UrgencyLevel};
 use crate::modules::memcoin_strategies::{
-    MemcoinStrategy, MemcoinStrategyParams, StrategyMetrics, UrgencyLevel
+    MemcoinStrategy, MemcoinStrategyParams, StrategyMetrics
 };
 
 use super::{
-    MicroWallet, EntryConditions, MiningEngine, EmergencyProtocol, TimeProtocol,
-    ExitSystem, OperationControl, MetricsCollector, TokenData, TradeExecution,
-    ExitCommand, EmergencyTrigger, OperationRecord
+    MicroWallet, EntryConditions, MiningEngine, TimeProtocol,
+    ExitSystem, OperationControl, TokenData, TradeExecution,
+    ExitCommand, EmergencyTrigger
 };
+use super::emergency_protocols::EmergencyProtocol;
+use super::metrics::{MetricsCollector, OperationRecord};
 
 /// Micro Lightning strategy configuration
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -79,13 +82,16 @@ impl MicroLightningStrategy {
         Self {
             config: config.clone(),
             strategy_params: MemcoinStrategyParams {
-                strategy_type: StrategyType::MicroLightning,
-                capital_allocation: capital,
-                max_position_size: capital * 0.8, // 80% max position
+                capital_allocation: capital as f32,
                 risk_tolerance: 0.15, // 15% risk tolerance
-                time_horizon_minutes: 55, // 55-minute max hold
-                urgency_level: UrgencyLevel::Flash, // <120ms execution
-                enabled: true,
+                max_position_size: capital * 0.8, // 80% max position
+                profit_target: 8.0,
+                stop_loss: 5.0,
+                max_hold_time: Duration::from_secs(55 * 60), // 55 minutes
+                strategy_type: Some(StrategyType::MicroLightning),
+                time_horizon_minutes: Some(55), // 55-minute max hold
+                urgency_level: Some(crate::modules::memcoin_strategies::UrgencyLevel::Flash), // <120ms execution
+                enabled: Some(true),
             },
             is_active: false,
             
@@ -145,21 +151,22 @@ impl MicroLightningStrategy {
         // Generate trading signal
         let signal = TradingSignal {
             signal_id: format!("micro_lightning_{}", uuid::Uuid::new_v4()),
-            strategy_type: StrategyType::MicroLightning,
             symbol: token_data.symbol.clone(),
             action: TradeAction::Buy,
             quantity: trade_execution.initial_entry.amount,
+            target_price: token_data.entry_price,
             price: Some(token_data.entry_price),
             confidence: 0.85, // High confidence for micro operations
-            urgency: UrgencyLevel::Flash,
-            metadata: serde_json::json!({
+            timestamp: chrono::Utc::now(),
+            strategy_type: StrategyType::MicroLightning,
+            urgency: Some(UrgencyLevel::Flash),
+            metadata: Some(serde_json::json!({
                 "token_address": token_data.address,
                 "entry_conditions": "micro_lightning_validated",
                 "mining_engine": "active",
                 "time_protocol": "started",
                 "wallet_allocation": self.wallet.get_utilization_summary()
-            }),
-            timestamp: std::time::SystemTime::now(),
+            })),
         };
 
         info!("⚡ Micro Lightning signal generated for {}: ${:.2}", 
@@ -216,18 +223,19 @@ impl MicroLightningStrategy {
 
             let signal = TradingSignal {
                 signal_id: format!("micro_exit_{}", uuid::Uuid::new_v4()),
-                strategy_type: StrategyType::MicroLightning,
                 symbol: execution.initial_entry.token.clone(),
                 action,
                 quantity,
+                target_price: 0.0, // Market order
                 price: None, // Market order
                 confidence,
-                urgency: UrgencyLevel::Flash,
-                metadata: serde_json::json!({
+                timestamp: chrono::Utc::now(),
+                strategy_type: StrategyType::MicroLightning,
+                urgency: Some(UrgencyLevel::Flash),
+                metadata: Some(serde_json::json!({
                     "exit_command": format!("{:?}", exit_command),
                     "exit_reason": "micro_lightning_exit"
-                }),
-                timestamp: std::time::SystemTime::now(),
+                })),
             };
 
             // If full exit, clean up position
@@ -266,19 +274,20 @@ impl MicroLightningStrategy {
                 if let Ok(reentry_trade) = self.mining_engine.execute_reentry(&execution.initial_entry.token) {
                     let signal = TradingSignal {
                         signal_id: format!("micro_reentry_{}", uuid::Uuid::new_v4()),
-                        strategy_type: StrategyType::MicroLightning,
                         symbol: execution.initial_entry.token.clone(),
                         action: TradeAction::Buy,
                         quantity: reentry_trade.amount,
+                        target_price: current_price,
                         price: Some(current_price),
                         confidence: 0.75, // Slightly lower confidence for reentry
-                        urgency: UrgencyLevel::Flash,
-                        metadata: serde_json::json!({
+                        timestamp: chrono::Utc::now(),
+                        strategy_type: StrategyType::MicroLightning,
+                        urgency: Some(UrgencyLevel::Flash),
+                        metadata: Some(serde_json::json!({
                             "reentry": true,
                             "original_entry": context.position.entry_price,
                             "current_price": current_price
-                        }),
-                        timestamp: std::time::SystemTime::now(),
+                        })),
                     };
 
                     info!("🔄 Reentry signal generated: ${:.2}", reentry_trade.amount);
@@ -341,44 +350,36 @@ impl MicroLightningStrategy {
 
 #[async_trait]
 impl MemcoinStrategy for MicroLightningStrategy {
-    async fn analyze_signal(&mut self, market_data: serde_json::Value) -> Result<Option<TradingSignal>> {
-        if !self.is_active || !self.can_accept_position() {
+    fn name(&self) -> &str {
+        "Micro Lightning Strategy"
+    }
+
+    fn strategy_type(&self) -> StrategyType {
+        StrategyType::MicroLightning
+    }
+
+    async fn process_signal(&self, signal: &(dyn std::any::Any + Send + Sync)) -> Result<Option<TradingSignal>> {
+        if !self.is_active {
             return Ok(None);
         }
 
-        // Try to parse market data as token candidate
-        if let Ok(token_data) = serde_json::from_value::<TokenData>(market_data.clone()) {
-            return self.process_token_candidate(token_data).await;
+        // Try to downcast to TokenData
+        if let Some(_token_data) = signal.downcast_ref::<TokenData>() {
+            // Process the token data (placeholder for now)
+            return Ok(None);
         }
 
-        // Monitor existing positions
-        self.monitor_position().await
+        Ok(None)
     }
 
     fn is_active(&self) -> bool {
         self.is_active
     }
 
-    fn get_strategy_type(&self) -> StrategyType {
-        StrategyType::MicroLightning
-    }
-
-    fn get_capital_allocation(&self) -> f64 {
-        self.strategy_params.capital_allocation
-    }
-
-    fn get_metrics(&self) -> StrategyMetrics {
-        let mut metrics = self.metrics.clone();
-        
-        // Update with current statistics
-        let stats = self.metrics_collector.get_stats();
-        metrics.total_signals = stats.total_operations;
-        metrics.successful_trades = stats.successful_operations;
-        metrics.total_profit = stats.net_profit;
-        metrics.win_rate = stats.win_rate;
-        metrics.avg_hold_time = stats.avg_hold_time_minutes;
-        
-        metrics
+    async fn update_params(&mut self, params: MemcoinStrategyParams) -> Result<()> {
+        self.strategy_params = params;
+        info!("⚙️ Micro Lightning parameters updated");
+        Ok(())
     }
 
     async fn activate(&mut self) -> Result<()> {
@@ -408,13 +409,7 @@ impl MemcoinStrategy for MicroLightningStrategy {
         Ok(())
     }
 
-    async fn update_config(&mut self, config: serde_json::Value) -> Result<()> {
-        if let Ok(micro_config) = serde_json::from_value::<MicroLightningConfig>(config) {
-            self.config = micro_config;
-            info!("⚙️ Micro Lightning configuration updated");
-        }
-        Ok(())
-    }
+
 }
 
 // Add MicroLightning to StrategyType enum (this would be done in the main strategy module)

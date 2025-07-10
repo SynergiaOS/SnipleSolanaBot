@@ -5,7 +5,7 @@ use anyhow::{Context, Result};
 use serde::{Deserialize, Serialize};
 use std::env;
 use tracing::{info, warn};
-use crate::security::infisical_client::SecureEnvLoader;
+// use crate::security::infisical_client::SecureEnvLoader;
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Config {
@@ -295,14 +295,14 @@ impl Config {
         Ok(config)
     }
 
-    /// Load configuration from Infisical with environment fallback
+    /// Load configuration from environment variables
     pub async fn from_infisical() -> Result<Self> {
-        info!("🔐 Loading configuration from Infisical...");
+        info!("🔐 Loading configuration from environment variables...");
 
-        let secure_loader = SecureEnvLoader::new(true).await;
+        // Load from environment variables directly
 
-        let trading_mode = match secure_loader.get("SNIPER_TRADING_MODE").await
-            .unwrap_or_else(|| "paper".to_string())
+        let trading_mode = match env::var("SNIPER_TRADING_MODE")
+            .unwrap_or_else(|_| "paper".to_string())
             .to_lowercase()
             .as_str()
         {
@@ -313,74 +313,78 @@ impl Config {
         let config = Config {
             trading: TradingConfig {
                 mode: trading_mode,
-                max_position_size: secure_loader.get("SNIPER_MAX_POSITION_SIZE").await
-                    .unwrap_or_else(|| "1000".to_string())
+                max_position_size: env::var("SNIPER_MAX_POSITION_SIZE")
+                    .unwrap_or_else(|_| "1000".to_string())
                     .parse()
                     .context("Invalid SNIPER_MAX_POSITION_SIZE")?,
-                max_daily_loss: secure_loader.get("SNIPER_MAX_DAILY_LOSS").await
-                    .unwrap_or_else(|| "500".to_string())
+                max_daily_loss: env::var("SNIPER_MAX_DAILY_LOSS")
+                    .unwrap_or_else(|_| "500".to_string())
                     .parse()
                     .context("Invalid SNIPER_MAX_DAILY_LOSS")?,
             },
             solana: SolanaConfig {
-                rpc_url: secure_loader.get("SOLANA_RPC_URL").await
-                    .unwrap_or_else(|| "https://api.devnet.solana.com".to_string()),
-                wallet_private_key: secure_loader.get("SNIPER_WALLET_PRIVATE_KEY").await
-                    .unwrap_or_else(|| "placeholder-private-key-for-development".to_string()),
-                multi_wallet_enabled: secure_loader.get("OVERMIND_MULTI_WALLET_ENABLED").await
-                    .unwrap_or_else(|| "false".to_string())
+                rpc_url: env::var("SOLANA_RPC_URL")
+                    .unwrap_or_else(|_| "https://api.devnet.solana.com".to_string()),
+                wallet_private_key: env::var("SNIPER_WALLET_PRIVATE_KEY")
+                    .unwrap_or_else(|_| "placeholder-private-key-for-development".to_string()),
+                multi_wallet_enabled: env::var("OVERMIND_MULTI_WALLET_ENABLED")
+                    .unwrap_or_else(|_| "false".to_string())
                     .parse()
                     .unwrap_or(false),
-                max_slippage: secure_loader.get("SNIPER_MAX_SLIPPAGE").await
-                    .unwrap_or_else(|| "0.05".to_string())
+                default_wallet_id: env::var("SNIPER_DEFAULT_WALLET_ID").ok(),
+                rpc_endpoints: vec![], // Will be populated by get_rpc_endpoints()
+                failover_enabled: env::var("SOLANA_FAILOVER_ENABLED")
+                    .unwrap_or_else(|_| "true".to_string())
                     .parse()
-                    .unwrap_or(0.05),
-                priority_fee: secure_loader.get("SNIPER_PRIORITY_FEE").await
-                    .unwrap_or_else(|| "0.001".to_string())
+                    .unwrap_or(true),
+                health_check_interval_ms: env::var("SOLANA_HEALTH_CHECK_INTERVAL")
+                    .unwrap_or_else(|_| "5000".to_string())
                     .parse()
-                    .unwrap_or(0.001),
+                    .unwrap_or(5000),
             },
-            ai: AIConfig {
-                enabled: secure_loader.get("OVERMIND_AI_MODE").await
-                    .unwrap_or_else(|| "enabled".to_string()) == "enabled",
-                model: secure_loader.get("OVERMIND_AI_MODEL").await
-                    .unwrap_or_else(|| "gpt-4".to_string()),
-                max_tokens: secure_loader.get("OVERMIND_AI_MAX_TOKENS").await
-                    .unwrap_or_else(|| "4000".to_string())
+            api: ApiConfig {
+                helius_api_key: env::var("HELIUS_API_KEY")
+                    .unwrap_or_else(|_| "placeholder-helius-key".to_string()),
+                helius_rpc_url: env::var("HELIUS_RPC_URL")
+                    .unwrap_or_else(|_| "https://mainnet.helius-rpc.com".to_string()),
+                helius_ws_url: env::var("HELIUS_WS_URL")
+                    .unwrap_or_else(|_| "wss://mainnet.helius-rpc.com".to_string()),
+                quicknode_api_key: env::var("QUICKNODE_API_KEY")
+                    .unwrap_or_else(|_| "placeholder-quicknode-key".to_string()),
+                quicknode_ws_url: env::var("QUICKNODE_WS_URL")
+                    .unwrap_or_else(|_| "wss://api.quicknode.com".to_string()),
+            },
+            database: DatabaseConfig {
+                url: env::var("DATABASE_URL")
+                    .unwrap_or_else(|_| "postgresql://localhost/overmind".to_string()),
+            },
+            server: ServerConfig {
+                port: env::var("SERVER_PORT")
+                    .unwrap_or_else(|_| "8080".to_string())
                     .parse()
-                    .unwrap_or(4000),
-                temperature: secure_loader.get("OVERMIND_AI_TEMPERATURE").await
-                    .unwrap_or_else(|| "0.7".to_string())
+                    .unwrap_or(8080),
+            },
+            logging: LoggingConfig {
+                level: env::var("LOG_LEVEL")
+                    .unwrap_or_else(|_| "info".to_string()),
+            },
+            overmind: OvermindConfig {
+                enabled: env::var("OVERMIND_ENABLED")
+                    .unwrap_or_else(|_| "false".to_string())
+                    .parse()
+                    .unwrap_or(false),
+                tensorzero_gateway_url: env::var("OVERMIND_TENSORZERO_URL")
+                    .unwrap_or_else(|_| "http://localhost:3000".to_string()),
+                jito_endpoint: env::var("OVERMIND_JITO_ENDPOINT")
+                    .unwrap_or_else(|_| "https://mainnet.block-engine.jito.wtf".to_string()),
+                max_execution_latency_ms: env::var("OVERMIND_MAX_LATENCY_MS")
+                    .unwrap_or_else(|_| "25".to_string())
+                    .parse()
+                    .unwrap_or(25),
+                ai_confidence_threshold: env::var("OVERMIND_AI_CONFIDENCE_THRESHOLD")
+                    .unwrap_or_else(|_| "0.7".to_string())
                     .parse()
                     .unwrap_or(0.7),
-                openai_api_key: secure_loader.get("OPENAI_API_KEY").await
-                    .unwrap_or_else(|| "placeholder-openai-key".to_string()),
-            },
-            api: APIConfig {
-                helius_api_key: secure_loader.get("HELIUS_API_KEY").await
-                    .unwrap_or_else(|| "placeholder-helius-key".to_string()),
-                quicknode_api_key: secure_loader.get("QUICKNODE_API_KEY").await
-                    .unwrap_or_else(|| "placeholder-quicknode-key".to_string()),
-                jina_api_key: secure_loader.get("JINA_API_KEY").await
-                    .unwrap_or_else(|| "placeholder-jina-key".to_string()),
-                deepseek_api_key: secure_loader.get("DEEPSEEK_API_KEY").await
-                    .unwrap_or_else(|| "placeholder-deepseek-key".to_string()),
-            },
-            monitoring: MonitoringConfig {
-                prometheus_enabled: secure_loader.get("PROMETHEUS_ENABLED").await
-                    .unwrap_or_else(|| "true".to_string())
-                    .parse()
-                    .unwrap_or(true),
-                prometheus_port: secure_loader.get("PROMETHEUS_PORT").await
-                    .unwrap_or_else(|| "9090".to_string())
-                    .parse()
-                    .unwrap_or(9090),
-                log_level: secure_loader.get("LOG_LEVEL").await
-                    .unwrap_or_else(|| "info".to_string()),
-                enable_metrics: secure_loader.get("ENABLE_METRICS").await
-                    .unwrap_or_else(|| "true".to_string())
-                    .parse()
-                    .unwrap_or(true),
             },
         };
 

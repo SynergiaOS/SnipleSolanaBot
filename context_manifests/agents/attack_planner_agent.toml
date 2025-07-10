@@ -1,0 +1,223 @@
+# Context Manifest for AttackPlannerAgent
+# THE OVERMIND PROTOCOL v4.1 - Context Engineering Implementation
+version = "1.0"
+agent_type = "AttackPlannerAgent"
+created_date = "2025-01-10"
+last_updated = "2025-01-10"
+
+[objective]
+primary = "Plan and coordinate MEV attack strategies for Solana memcoin opportunities"
+secondary = "Optimize bundle composition and timing for maximum profit extraction"
+domain = "mev_strategy_planning"
+accuracy_target = 0.88
+philosophy = "context_engineering_precision"
+
+[input_schema]
+target_token = "string"                  # Target token symbol (required)
+opportunity_type = "enum[arbitrage,sandwich,liquidation,frontrun]"  # MEV opportunity type
+market_conditions = "object"             # Current market state
+liquidity_pools = "array[object]"        # Available liquidity pools
+gas_price = "float"                      # Current gas price in lamports
+block_time = "integer"                   # Expected block time in ms
+competition_level = "enum[low,medium,high]"  # MEV competition intensity
+profit_threshold = "float"               # Minimum profit threshold in SOL
+
+[output_schema]
+attack_plan = "object"                   # Detailed attack execution plan
+bundle_composition = "array[object]"     # Transaction bundle structure
+timing_strategy = "object"               # Optimal timing parameters
+profit_estimation = "float"             # Expected profit in SOL
+risk_assessment = "object"               # Risk factors and mitigation
+execution_priority = "enum[low,medium,high,critical]"  # Execution urgency
+confidence = "float[0.0, 1.0]"         # Confidence in plan success
+fallback_strategies = "array[object]"   # Alternative approaches
+
+[constraints]
+max_latency_ms = 200                    # Maximum planning time
+max_bundle_size = 5                     # Maximum transactions per bundle
+min_profit_margin = 0.1                 # Minimum profit margin (10%)
+max_gas_cost = 0.01                     # Maximum gas cost in SOL
+planning_horizon_ms = 5000              # Planning time horizon
+
+[examples]
+[examples.arbitrage_opportunity]
+input = '''
+{
+  "target_token": "BONK",
+  "opportunity_type": "arbitrage",
+  "market_conditions": {
+    "volatility": 0.15,
+    "volume_spike": true,
+    "trend": "bullish"
+  },
+  "liquidity_pools": [
+    {"dex": "Raydium", "price": 0.000015, "liquidity": 50000},
+    {"dex": "Orca", "price": 0.000016, "liquidity": 30000}
+  ],
+  "gas_price": 5000,
+  "block_time": 400,
+  "competition_level": "medium",
+  "profit_threshold": 0.5
+}
+'''
+output = '''
+{
+  "attack_plan": {
+    "strategy": "cross_dex_arbitrage",
+    "buy_dex": "Raydium",
+    "sell_dex": "Orca",
+    "amount": 25000
+  },
+  "bundle_composition": [
+    {"type": "buy", "dex": "Raydium", "amount": 25000, "slippage": 0.01},
+    {"type": "sell", "dex": "Orca", "amount": 25000, "slippage": 0.01}
+  ],
+  "timing_strategy": {
+    "execution_delay": 0,
+    "block_target": "next",
+    "priority_fee": 10000
+  },
+  "profit_estimation": 0.75,
+  "risk_assessment": {
+    "slippage_risk": "low",
+    "competition_risk": "medium",
+    "execution_risk": "low"
+  },
+  "execution_priority": "high",
+  "confidence": 0.85,
+  "fallback_strategies": [
+    {"type": "reduce_size", "amount": 15000},
+    {"type": "abort", "condition": "profit_below_threshold"}
+  ]
+}
+'''
+
+[examples.sandwich_attack]
+input = '''
+{
+  "target_token": "PEPE",
+  "opportunity_type": "sandwich",
+  "market_conditions": {
+    "volatility": 0.25,
+    "volume_spike": false,
+    "trend": "sideways"
+  },
+  "liquidity_pools": [
+    {"dex": "Jupiter", "price": 0.000008, "liquidity": 100000}
+  ],
+  "gas_price": 7500,
+  "block_time": 450,
+  "competition_level": "high",
+  "profit_threshold": 0.3
+}
+'''
+output = '''
+{
+  "attack_plan": {
+    "strategy": "sandwich_attack",
+    "target_tx": "pending_large_buy",
+    "front_run_amount": 10000,
+    "back_run_amount": 10000
+  },
+  "bundle_composition": [
+    {"type": "front_run", "amount": 10000, "slippage": 0.005},
+    {"type": "victim_tx", "passthrough": true},
+    {"type": "back_run", "amount": 10000, "slippage": 0.005}
+  ],
+  "timing_strategy": {
+    "execution_delay": 0,
+    "block_target": "same",
+    "priority_fee": 15000
+  },
+  "profit_estimation": 0.45,
+  "risk_assessment": {
+    "slippage_risk": "medium",
+    "competition_risk": "high",
+    "execution_risk": "medium"
+  },
+  "execution_priority": "critical",
+  "confidence": 0.72,
+  "fallback_strategies": [
+    {"type": "abort", "condition": "high_competition_detected"}
+  ]
+}
+'''
+
+[examples.insufficient_opportunity]
+input = '''
+{
+  "target_token": "STABLE",
+  "opportunity_type": "arbitrage",
+  "market_conditions": {
+    "volatility": 0.02,
+    "volume_spike": false,
+    "trend": "stable"
+  },
+  "liquidity_pools": [
+    {"dex": "Raydium", "price": 1.000, "liquidity": 1000000},
+    {"dex": "Orca", "price": 1.001, "liquidity": 1000000}
+  ],
+  "gas_price": 5000,
+  "block_time": 400,
+  "competition_level": "low",
+  "profit_threshold": 0.5
+}
+'''
+output = '''
+{
+  "attack_plan": null,
+  "bundle_composition": [],
+  "timing_strategy": null,
+  "profit_estimation": 0.05,
+  "risk_assessment": {
+    "profit_too_low": true,
+    "gas_cost_exceeds_profit": true
+  },
+  "execution_priority": "low",
+  "confidence": 0.95,
+  "fallback_strategies": [
+    {"type": "wait", "condition": "better_opportunity"},
+    {"type": "monitor", "duration": 300000}
+  ]
+}
+'''
+
+[fallback]
+strategy = "conservative_planning"
+description = "Conservative MEV planning when data is incomplete or uncertain"
+default_confidence = 0.4               # Lower confidence for uncertain plans
+min_profit_multiplier = 2.0            # Require 2x minimum profit for uncertain opportunities
+max_risk_tolerance = 0.3               # Lower risk tolerance in fallback mode
+abort_on_uncertainty = true            # Abort if too much uncertainty
+
+[performance_metrics]
+target_accuracy = 0.88                 # Expected planning accuracy
+target_latency_ms = 100                # Target planning time
+success_rate_threshold = 0.75          # Minimum success rate for executed plans
+profit_prediction_accuracy = 0.80     # Accuracy of profit predictions
+false_positive_rate_max = 0.15         # Maximum false positive rate
+
+[monitoring]
+log_level = "debug"                    # Detailed logging for MEV operations
+metrics_enabled = true
+performance_tracking = true
+profit_tracking = true                 # Track actual vs predicted profits
+competition_monitoring = true          # Monitor MEV competition levels
+
+[integration]
+cortex_core_required = true            # Requires CortexCore integration
+jito_bundle_required = true            # Requires Jito bundle integration
+real_time_data_required = true         # Requires real-time market data
+fallback_mode_available = true         # Can operate with limited data
+
+[security]
+plan_validation = true                 # Validate all attack plans
+risk_assessment_required = true        # Mandatory risk assessment
+profit_verification = true             # Verify profit calculations
+competition_analysis = true            # Analyze MEV competition
+
+[evolution]
+strategy_optimization = true           # Optimize strategies based on results
+market_adaptation = true               # Adapt to changing market conditions
+competition_learning = true            # Learn from competitor behavior
+performance_feedback = true            # Use execution results for improvement

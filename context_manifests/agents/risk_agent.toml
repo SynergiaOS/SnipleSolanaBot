@@ -1,0 +1,227 @@
+# Context Manifest for RiskAgent
+# THE OVERMIND PROTOCOL v4.1 - Context Engineering Implementation
+version = "1.0"
+agent_type = "RiskAgent"
+created_date = "2025-01-10"
+last_updated = "2025-01-10"
+
+[objective]
+primary = "Assess trading risk for Solana tokens and positions with Hotz-level precision"
+secondary = "Provide risk mitigation recommendations and position sizing guidance"
+domain = "financial_risk_assessment"
+accuracy_target = 0.92
+philosophy = "context_engineering_over_vibe_coding"
+
+[input_schema]
+token_symbol = "string"                  # Token to assess (required)
+position_size = "float"                  # Proposed position size in SOL
+current_price = "float"                  # Current token price
+market_cap = "float"                     # Token market capitalization
+volume_24h = "float"                     # 24-hour trading volume
+liquidity_depth = "float"               # Available liquidity
+holder_count = "integer"                 # Number of token holders
+dev_wallet_percentage = "float"          # Developer wallet holdings %
+contract_verified = "boolean"            # Smart contract verification status
+audit_status = "enum[none,pending,passed,failed]"  # Security audit status
+time_since_launch = "integer"            # Days since token launch
+
+[output_schema]
+risk_score = "float[0.0, 1.0]"          # Overall risk score (0=safe, 1=extreme risk)
+risk_category = "enum[low,medium,high,extreme]"  # Risk classification
+position_recommendation = "float"        # Recommended position size multiplier
+stop_loss_level = "float"               # Recommended stop-loss percentage
+risk_factors = "array[string]"          # Identified risk factors
+mitigation_strategies = "array[string]" # Risk mitigation recommendations
+confidence = "float[0.0, 1.0]"         # Confidence in assessment
+max_exposure_percentage = "float"        # Maximum portfolio exposure recommended
+
+[constraints]
+max_latency_ms = 300                    # Maximum processing time
+min_data_points = 3                     # Minimum required data points
+memory_limit_mb = 32                    # Memory usage limit
+risk_score_precision = 0.01             # Risk score decimal precision
+max_position_multiplier = 2.0           # Maximum position size multiplier
+
+[examples]
+[examples.low_risk_established]
+input = '''
+{
+  "token_symbol": "SOL",
+  "position_size": 100.0,
+  "current_price": 95.50,
+  "market_cap": 45000000000,
+  "volume_24h": 2500000000,
+  "liquidity_depth": 50000000,
+  "holder_count": 500000,
+  "dev_wallet_percentage": 2.5,
+  "contract_verified": true,
+  "audit_status": "passed",
+  "time_since_launch": 1200
+}
+'''
+output = '''
+{
+  "risk_score": 0.15,
+  "risk_category": "low",
+  "position_recommendation": 1.0,
+  "stop_loss_level": 0.08,
+  "risk_factors": ["established_token"],
+  "mitigation_strategies": ["diversify_portfolio", "monitor_market_conditions"],
+  "confidence": 0.95,
+  "max_exposure_percentage": 0.25
+}
+'''
+
+[examples.high_risk_memecoin]
+input = '''
+{
+  "token_symbol": "NEWMEME",
+  "position_size": 50.0,
+  "current_price": 0.000123,
+  "market_cap": 1200000,
+  "volume_24h": 150000,
+  "liquidity_depth": 25000,
+  "holder_count": 450,
+  "dev_wallet_percentage": 35.0,
+  "contract_verified": false,
+  "audit_status": "none",
+  "time_since_launch": 3
+}
+'''
+output = '''
+{
+  "risk_score": 0.85,
+  "risk_category": "extreme",
+  "position_recommendation": 0.2,
+  "stop_loss_level": 0.15,
+  "risk_factors": ["high_dev_concentration", "unverified_contract", "low_liquidity", "new_launch", "no_audit"],
+  "mitigation_strategies": ["reduce_position_size", "tight_stop_loss", "monitor_dev_activity", "exit_on_volume_spike"],
+  "confidence": 0.88,
+  "max_exposure_percentage": 0.02
+}
+'''
+
+[examples.medium_risk_defi]
+input = '''
+{
+  "token_symbol": "DEFITOKEN",
+  "position_size": 75.0,
+  "current_price": 2.45,
+  "market_cap": 25000000,
+  "volume_24h": 500000,
+  "liquidity_depth": 150000,
+  "holder_count": 2500,
+  "dev_wallet_percentage": 8.0,
+  "contract_verified": true,
+  "audit_status": "passed",
+  "time_since_launch": 45
+}
+'''
+output = '''
+{
+  "risk_score": 0.45,
+  "risk_category": "medium",
+  "position_recommendation": 0.7,
+  "stop_loss_level": 0.12,
+  "risk_factors": ["moderate_liquidity", "recent_launch", "small_holder_base"],
+  "mitigation_strategies": ["gradual_entry", "monitor_volume", "track_holder_growth"],
+  "confidence": 0.82,
+  "max_exposure_percentage": 0.08
+}
+'''
+
+[examples.insufficient_data]
+input = '''
+{
+  "token_symbol": "UNKNOWN",
+  "position_size": 25.0,
+  "current_price": 0.001
+}
+'''
+output = '''
+{
+  "risk_score": 0.9,
+  "risk_category": "extreme",
+  "position_recommendation": 0.1,
+  "stop_loss_level": 0.2,
+  "risk_factors": ["insufficient_data", "unknown_fundamentals"],
+  "mitigation_strategies": ["avoid_investment", "gather_more_data"],
+  "confidence": 0.6,
+  "max_exposure_percentage": 0.01
+}
+'''
+
+[fallback]
+strategy = "conservative_heuristic"
+description = "Conservative risk assessment when data is incomplete"
+default_risk_score = 0.8                # High risk by default
+default_position_multiplier = 0.3       # Conservative position sizing
+default_stop_loss = 0.15                # Tight stop-loss
+fallback_confidence = 0.5               # Lower confidence for fallback
+safety_first_approach = true            # Always err on side of caution
+
+[risk_factors]
+# Risk factor definitions and weights
+[risk_factors.liquidity]
+low_threshold = 10000                   # SOL
+medium_threshold = 100000               # SOL
+weight = 0.25
+
+[risk_factors.market_cap]
+micro_cap_threshold = 1000000           # USD
+small_cap_threshold = 10000000          # USD
+weight = 0.15
+
+[risk_factors.dev_concentration]
+concerning_threshold = 20.0             # Percentage
+dangerous_threshold = 50.0              # Percentage
+weight = 0.30
+
+[risk_factors.time_since_launch]
+new_token_days = 7                      # Days
+established_days = 90                   # Days
+weight = 0.10
+
+[risk_factors.audit_status]
+no_audit_penalty = 0.3                 # Risk score increase
+failed_audit_penalty = 0.5             # Risk score increase
+weight = 0.20
+
+[performance_metrics]
+target_accuracy = 0.92                  # Expected accuracy on test set
+target_latency_ms = 150                 # Target processing time
+success_rate_threshold = 0.88           # Minimum success rate
+false_positive_rate_max = 0.05          # Maximum false positive rate
+false_negative_rate_max = 0.02          # Maximum false negative rate
+
+[monitoring]
+log_level = "info"
+metrics_enabled = true
+performance_tracking = true
+risk_alert_threshold = 0.8              # Alert on high risk scores
+position_size_alerts = true             # Alert on large positions
+
+[integration]
+cortex_core_required = true             # Requires CortexCore integration
+market_data_required = true             # Requires real-time market data
+fallback_mode_available = true          # Can operate with limited data
+real_time_updates = true                # Support real-time risk updates
+
+[validation]
+schema_version = "1.0"
+required_fields = ["token_symbol", "position_size"]
+risk_score_bounds_check = true          # Validate risk score is in [0,1]
+position_recommendation_check = true    # Validate position multiplier
+output_consistency_check = true         # Check output consistency
+
+[security]
+input_validation = true                 # Validate all input parameters
+output_sanitization = true              # Sanitize output data
+rate_limiting = true                    # Prevent abuse
+max_assessments_per_minute = 500        # Rate limit threshold
+
+[evolution]
+auto_calibration = true                 # Auto-calibrate risk models
+feedback_learning = true                # Learn from trading outcomes
+model_adaptation = true                 # Adapt to market conditions
+performance_optimization = true         # Optimize for better performance

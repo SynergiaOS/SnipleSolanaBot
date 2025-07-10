@@ -1,0 +1,169 @@
+# Context Manifest for SentimentAgent
+# THE OVERMIND PROTOCOL v4.1 - Context Engineering Implementation
+version = "1.0"
+agent_type = "SentimentAgent"
+created_date = "2025-01-10"
+last_updated = "2025-01-10"
+
+[objective]
+primary = "Analyze sentiment of provided text regarding Solana tokens and crypto market"
+secondary = "Identify potential market-moving keywords and emotional indicators"
+domain = "cryptocurrency_sentiment"
+accuracy_target = 0.95
+
+[input_schema]
+source_text = "string"                    # Text to analyze (required)
+source_url = "string"                     # Optional source URL
+timestamp = "datetime"                    # When the text was created
+token_symbol = "string"                   # Optional specific token context
+context_type = "enum[twitter,telegram,discord,reddit,news]"  # Source platform
+
+[output_schema]
+sentiment_score = "float[-1.0, 1.0]"     # Normalized sentiment score
+keywords = "array[string]"               # Extracted significant keywords
+confidence = "float[0.0, 1.0]"          # Confidence in the analysis
+emotional_indicators = "array[string]"   # Emotional markers found
+market_impact = "enum[low,medium,high]"  # Potential market impact
+risk_flags = "array[string]"             # Risk indicators (scam, rug, etc.)
+
+[constraints]
+max_latency_ms = 500                     # Maximum processing time
+max_input_length = 2048                  # Maximum text length
+memory_limit_mb = 64                     # Memory usage limit
+allowed_sources = ["twitter", "telegram", "discord", "reddit", "news"]
+min_confidence_threshold = 0.7           # Minimum confidence for valid output
+
+[examples]
+[examples.bullish_signal]
+input = '''
+{
+  "source_text": "This $BONK token is going to the moon! Dev team is based and transparent. Diamond hands only! 🚀💎",
+  "token_symbol": "BONK",
+  "context_type": "twitter",
+  "timestamp": "2025-01-10T12:00:00Z"
+}
+'''
+output = '''
+{
+  "sentiment_score": 0.85,
+  "keywords": ["moon", "based", "transparent", "diamond hands"],
+  "confidence": 0.92,
+  "emotional_indicators": ["excitement", "optimism", "commitment"],
+  "market_impact": "medium",
+  "risk_flags": []
+}
+'''
+
+[examples.bearish_signal]
+input = '''
+{
+  "source_text": "Dev of $SCAM just dumped his bags. Total rug pull incoming. Don't buy this trash!",
+  "token_symbol": "SCAM",
+  "context_type": "telegram",
+  "timestamp": "2025-01-10T12:00:00Z"
+}
+'''
+output = '''
+{
+  "sentiment_score": -0.95,
+  "keywords": ["dumped", "rug pull", "trash"],
+  "confidence": 0.98,
+  "emotional_indicators": ["anger", "warning", "fear"],
+  "market_impact": "high",
+  "risk_flags": ["rug_pull", "dev_dump", "scam_warning"]
+}
+'''
+
+[examples.neutral_analysis]
+input = '''
+{
+  "source_text": "Solana network processed 2.5M transactions today. Network performance remains stable.",
+  "token_symbol": "SOL",
+  "context_type": "news",
+  "timestamp": "2025-01-10T12:00:00Z"
+}
+'''
+output = '''
+{
+  "sentiment_score": 0.1,
+  "keywords": ["transactions", "stable", "performance"],
+  "confidence": 0.88,
+  "emotional_indicators": ["neutral", "factual"],
+  "market_impact": "low",
+  "risk_flags": []
+}
+'''
+
+[examples.insufficient_data]
+input = '''
+{
+  "source_text": "gm",
+  "context_type": "twitter",
+  "timestamp": "2025-01-10T12:00:00Z"
+}
+'''
+output = '''
+{
+  "sentiment_score": 0.0,
+  "keywords": [],
+  "confidence": 0.3,
+  "emotional_indicators": ["greeting"],
+  "market_impact": "low",
+  "risk_flags": []
+}
+'''
+
+[fallback]
+strategy = "hotz_deterministic_heuristic"
+description = "Deterministic keyword-based analysis when AI fails"
+positive_keywords = ["moon", "pump", "bullish", "buy", "hodl", "diamond", "rocket", "based", "gem"]
+negative_keywords = ["dump", "crash", "bearish", "sell", "rekt", "fud", "scam", "rug", "exit"]
+neutral_keywords = ["stable", "sideways", "consolidation", "volume", "analysis"]
+default_confidence = 0.6
+fallback_latency_ms = 50
+
+[performance_metrics]
+target_accuracy = 0.95                   # Expected accuracy on test set
+target_latency_ms = 100                  # Target processing time
+success_rate_threshold = 0.90            # Minimum success rate
+cache_hit_rate_target = 0.80             # Cache efficiency target
+memory_efficiency_target = 0.85          # Memory usage efficiency
+
+[cache_strategy]
+enabled = true
+max_entries = 10000                      # Maximum cached entries
+ttl_seconds = 3600                       # Time to live for cache entries
+hash_algorithm = "blake3"                # Fast hashing for cache keys
+eviction_policy = "lru"                  # Least Recently Used eviction
+
+[monitoring]
+log_level = "info"
+metrics_enabled = true
+performance_tracking = true
+error_reporting = true
+success_rate_window = 1000               # Rolling window for success rate
+
+[integration]
+cortex_core_required = true              # Requires CortexCore integration
+chimera_client_required = true           # Requires ChimeraClient for AI
+fallback_mode_available = true           # Can operate without AI
+cache_persistence = false                # In-memory cache only
+
+[validation]
+schema_version = "1.0"
+required_fields = ["source_text"]
+optional_fields = ["source_url", "timestamp", "token_symbol", "context_type"]
+output_validation = true                 # Validate output against schema
+performance_validation = true            # Validate performance metrics
+
+[security]
+input_sanitization = true               # Sanitize input text
+output_filtering = true                 # Filter sensitive output
+rate_limiting = true                    # Prevent abuse
+max_requests_per_minute = 1000          # Rate limit threshold
+
+[evolution]
+auto_optimization = true                # Enable automatic optimization
+learning_enabled = true                 # Learn from feedback
+adaptation_rate = 0.1                   # How quickly to adapt
+performance_feedback_loop = true        # Use performance for optimization

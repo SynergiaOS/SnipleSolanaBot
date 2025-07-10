@@ -3,7 +3,6 @@
 //! 3-layer exit strategy implementation for micro-lightning operations
 //! Implements take-profit radar, volatility circuit breaker, and sentiment collapse detection
 
-use anyhow::Result;
 use serde::{Deserialize, Serialize};
 use std::collections::VecDeque;
 use std::time::{SystemTime, Duration};

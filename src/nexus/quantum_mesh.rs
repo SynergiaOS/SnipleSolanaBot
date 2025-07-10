@@ -10,7 +10,7 @@ use std::collections::HashMap;
 use std::sync::{Arc, RwLock};
 use std::time::{Duration, Instant};
 use tokio::sync::{mpsc, RwLock as AsyncRwLock};
-use tracing::{debug, info, warn, error};
+use tracing::{debug, info, error};
 use uuid::Uuid;
 
 /// QuantumMesh Communication Layer

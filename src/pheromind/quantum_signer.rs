@@ -9,7 +9,7 @@ use pqcrypto_traits::kem::{PublicKey as PQPublicKey, Ciphertext as PQCiphertext,
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use std::time::{SystemTime, UNIX_EPOCH};
-use tracing::{debug, info, warn, error};
+use tracing::{debug, info, warn};
 use sha2::{Sha256, Digest};
 
 /// Post-quantum signature

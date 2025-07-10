@@ -24,9 +24,9 @@ use tracing::{debug, info, warn, error};
 use uuid::Uuid;
 
 use quantum_mesh::{QuantumMeshLayer, QuantumState, EntanglementConfig};
-use collective_consciousness::{CollectiveConsciousnessEngine, ConsciousnessPool};
+use collective_consciousness::CollectiveConsciousnessEngine;
 use neural_plasticity::{NeuralPlasticityManager, PlasticityConfig};
-use swarm_singularity::{SwarmSingularityProtocol, SingularityMetrics};
+use swarm_singularity::SwarmSingularityProtocol;
 
 /// THE OVERMIND PROTOCOL v6.0 'NEXUS' Core
 #[derive(Debug)]

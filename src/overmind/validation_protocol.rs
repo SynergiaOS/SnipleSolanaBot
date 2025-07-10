@@ -8,8 +8,7 @@ use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use std::time::{Duration, Instant};
 use tokio::sync::{RwLock, mpsc};
-use tracing::{info, debug, warn, error};
-use uuid::Uuid;
+use tracing::{info, warn, error};
 
 /// Protokół Walidacji Bojowej - główny koordynator
 pub struct ValidationProtocol {

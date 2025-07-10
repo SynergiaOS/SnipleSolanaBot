@@ -15,7 +15,6 @@ use tracing::{debug, info, warn, error};
 use super::dragonflydb_cache::DragonflyCache;
 
 /// Infisical client for secure secret management with DragonflyDB cache
-#[derive(Debug)]
 pub struct InfisicalClient {
     /// HTTP client
     client: Client,
@@ -440,6 +439,7 @@ impl Clone for InfisicalClient {
             secrets_cache: Arc::clone(&self.secrets_cache),
             auth_token: Arc::clone(&self.auth_token),
             last_auth: Arc::clone(&self.last_auth),
+            dragonflydb_cache: self.dragonflydb_cache.clone(),
         }
     }
 }

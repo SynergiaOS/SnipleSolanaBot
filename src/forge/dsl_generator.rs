@@ -7,10 +7,10 @@ use anyhow::{Result, anyhow};
 use serde::{Deserialize, Serialize};
 use std::sync::Arc;
 use std::collections::HashMap;
-use tracing::{debug, info, warn, error};
+use tracing::{debug, info};
 use uuid::Uuid;
 
-use super::tensorzero_gateway::{TensorZeroGateway, InferenceRequest, InferenceInput, Message};
+use super::tensorzero_gateway::TensorZeroGateway;
 use super::{AgentHistoricalData, EvolutionParams};
 
 /// Strategy DSL structure

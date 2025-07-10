@@ -1,9 +1,14 @@
-//! THE OVERMIND PROTOCOL v4.1 "MONOLITH"
+//! THE OVERMIND PROTOCOL v5.4 "INSIGHT CORE"
 //!
+//! CryptoInsight AI Integration with Hyper-Data Ingestion & Cognitive Architecture
 //! All-Rust implementation of autonomous AI trading system for Solana blockchain
 //!
 //! This library provides a comprehensive trading system with the following features:
 //! - THE OVERMIND CORTEX: AI Swarm + Knowledge Graph + Evolution
+//! - CryptoInsight AI: 4-layer AI (Seer, Inquisitor, Executioner, Whisper)
+//! - Jito-aware streaming with <31ms latency and MEV protection
+//! - Warden SPEX integration for verifiable AI predictions
+//! - Hybrydowy Feature Store: Redis + ClickHouse + Arweave
 //! - Real-time market data ingestion with Helius integration
 //! - Advanced MEV strategies and HFT execution
 //! - Risk management and portfolio optimization
@@ -26,6 +31,10 @@ pub mod pheromind;
 pub mod forge;
 pub mod nexus;
 pub mod agents;
+pub mod swarmagentic;
+pub mod autoschema;
+pub mod security;
+pub mod cryptoinsight;
 
 // Re-export commonly used items
 pub use config::Config;
@@ -33,13 +42,25 @@ pub use modules::ai_connector::AIConnector;
 pub use modules::hft_engine::HftEngine;
 pub use modules::micro_lightning::{MicroLightningOrchestrator, MicroLightningStrategy};
 
-// THE OVERMIND PROTOCOL v4.1 exports
+// THE OVERMIND PROTOCOL v5.4 exports
 pub use overmind::OvermindProtocol;
 pub use overmind::cortex::Cortex;
 pub use overmind::swarm::{AgentCandidate, SwarmOrchestrator};
 pub use overmind::knowledge_graph::KnowledgeGraph;
 pub use overmind::optimization::DataFlywheel;
 pub use overmind::evolution::EvolutionEngine;
+
+// CryptoInsight AI v5.4 exports - Hyper-Data Ingestion & Cognitive Architecture
+pub use cryptoinsight::{
+    CryptoInsightCore, CryptoInsightConfig, CryptoInsightHealth,
+    JitoAwareStreamer, GeyserService, QuicClient,
+    CognitiveCortex, SeerLSTM, InquisitorGAN, ExecutionerRL, WhisperNLP,
+    SharedKnowledgeBase, AIBattalion, AIPrediction,
+    WardenSPEX, VerifiableAI, SPEXProof, ModelMetadata,
+    HybridFeatureStore, FeatureSet, RedisVectorDB,
+    MemecoinShield, DecoyFactory, JitoBundle,
+    PumpFunMonitor, WashTradingDetector, PatternAnalyzer, PumpFunPattern
+};
 
 // GEOHOT CORE v4.4 exports - Pure Rust Implementation
 pub use geohot::{GeohoteCore, GeohoteConfig, TradingDecision, GeohoteMetrics};

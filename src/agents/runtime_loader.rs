@@ -10,11 +10,10 @@ use std::path::{Path, PathBuf};
 use std::sync::{Arc, RwLock};
 use std::time::{Duration, Instant};
 use tokio::fs;
-use tracing::{debug, info, warn, error};
+use tracing::{debug, info, warn};
 
 use crate::forge::{CompiledArtifact, TheForge};
-use crate::forge::hot_loader::{StrategyHotLoader, StrategyContainer, MarketData, HftContext};
-use crate::agents::{DynamicAgent, AgentType};
+use crate::forge::hot_loader::{StrategyHotLoader, StrategyContainer};
 
 /// Runtime Module Loader - zarządza hot-swapping strategii
 #[derive(Debug)]

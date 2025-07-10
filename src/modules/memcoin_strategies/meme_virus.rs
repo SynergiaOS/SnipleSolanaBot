@@ -13,7 +13,7 @@ use std::collections::HashMap;
 use std::sync::Arc;
 use std::time::Duration;
 use tokio::sync::RwLock;
-use tracing::{debug, info, warn};
+use tracing::{debug, info};
 
 /// Fazy cyklu życia meme
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]

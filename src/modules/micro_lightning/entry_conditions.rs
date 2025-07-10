@@ -5,7 +5,7 @@
 
 use anyhow::Result;
 use serde::{Deserialize, Serialize};
-use std::time::{SystemTime, UNIX_EPOCH};
+use std::time::SystemTime;
 use tracing::{debug, info, warn};
 
 /// Token data structure for evaluation

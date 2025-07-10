@@ -10,9 +10,8 @@ pub mod genesis_analyzer;
 pub mod quantum_signer;
 
 use anyhow::Result;
-use std::sync::Arc;
 use tokio::sync::mpsc;
-use tracing::{info, error};
+use tracing::info;
 
 use pheromone_bus::{PheromoneBus, PheromoneConfig, Pheromone};
 use genesis_analyzer::{GenesisAnalyzer, GenesisConfig, BootstrapStrategy};

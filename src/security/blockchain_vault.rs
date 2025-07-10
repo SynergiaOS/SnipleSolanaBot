@@ -13,20 +13,19 @@ use solana_sdk::{
     pubkey::Pubkey,
     signature::{Keypair, Signature},
     signer::Signer,
-    system_instruction,
     transaction::Transaction,
 };
 use std::collections::HashMap;
 use std::str::FromStr;
 use std::sync::{Arc, RwLock};
 use std::time::{SystemTime, UNIX_EPOCH};
-use tracing::{debug, info, warn, error};
+use tracing::{debug, info};
 use sha2::{Sha256, Digest};
-use aes_gcm::{Aes256Gcm, Key, Nonce, aead::{Aead, NewAead}};
+use aes_gcm::{Aes256Gcm, Key, Nonce, aead::Aead, KeyInit};
 use rand::{RngCore, rngs::OsRng};
 
 /// Blockchain vault configuration
-#[derive(Debug, Clone)]
+#[derive(Debug)]
 pub struct BlockchainVaultConfig {
     /// Solana RPC endpoint
     pub rpc_url: String,
@@ -380,7 +379,7 @@ impl BlockchainVault {
     }
     
     fn encrypt_data(&self, data: &[u8]) -> Result<(Vec<u8>, Vec<u8>)> {
-        let key = Key::from_slice(&self.encryption_key);
+        let key = Key::<Aes256Gcm>::from_slice(&self.encryption_key);
         let cipher = Aes256Gcm::new(key);
         
         let mut nonce_bytes = [0u8; 12];
@@ -398,7 +397,7 @@ impl BlockchainVault {
             return Ok(encrypted_data.to_vec());
         }
         
-        let key = Key::from_slice(&self.encryption_key);
+        let key = Key::<Aes256Gcm>::from_slice(&self.encryption_key);
         let cipher = Aes256Gcm::new(key);
         let nonce = Nonce::from_slice(nonce);
         

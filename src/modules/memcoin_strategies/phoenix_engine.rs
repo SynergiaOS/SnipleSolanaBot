@@ -25,7 +25,7 @@ use moka::future::Cache;
 
 use crate::modules::strategy::{TradingSignal, TradeAction, StrategyType};
 use crate::modules::memcoin_strategies::{
-    MemcoinStrategy, MemcoinStrategyParams, StrategyMetrics
+    MemcoinStrategy, MemcoinStrategyParams
 };
 
 /// Phoenix Engine Configuration - Zaawansowana konfiguracja

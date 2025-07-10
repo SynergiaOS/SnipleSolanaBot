@@ -5,7 +5,7 @@
 use crate::modules::strategy::TradingSignal;
 use crate::modules::memcoin_strategies::KineticShieldConfig;
 use crate::modules::micro_lightning::{
-    OperationControl, OperationError, EmergencyTrigger, TimeProtocol
+    OperationControl, EmergencyTrigger, TimeProtocol
 };
 use anyhow::Result;
 use serde::{Deserialize, Serialize};

@@ -4,7 +4,7 @@
 use anyhow::{Context, Result};
 use serde::{Deserialize, Serialize};
 use std::env;
-use tracing::{info, warn};
+use tracing::info;
 // use crate::security::infisical_client::SecureEnvLoader;
 
 #[derive(Debug, Clone, Serialize, Deserialize)]

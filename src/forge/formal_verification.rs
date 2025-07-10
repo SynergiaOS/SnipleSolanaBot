@@ -3,11 +3,11 @@
 //! Matematyczna weryfikacja strategii przed deployment
 //! Proof-based validation dla critical trading logic
 
-use anyhow::{Result, anyhow};
+use anyhow::Result;
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use std::time::{Duration, Instant};
-use tracing::{debug, info, warn, error};
+use tracing::{debug, info};
 
 /// Formal Verification Engine
 #[derive(Debug)]

@@ -3,9 +3,8 @@
 //! Time-based trading rules and limits for micro-lightning operations
 //! Implements golden window, decay window, and hard expiry logic
 
-use anyhow::Result;
 use serde::{Deserialize, Serialize};
-use std::time::{SystemTime, Duration, UNIX_EPOCH};
+use std::time::{SystemTime, Duration};
 use tracing::{debug, info, warn};
 
 /// Exit percentage wrapper for type safety

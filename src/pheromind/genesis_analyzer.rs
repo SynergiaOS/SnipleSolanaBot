@@ -8,7 +8,7 @@ use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use std::time::{Duration, SystemTime, UNIX_EPOCH};
 use tokio::time::sleep;
-use tracing::{debug, info, warn, error};
+use tracing::{debug, info};
 use reqwest::Client;
 
 /// Strategia bootstrap wydobyta z analizy genesis

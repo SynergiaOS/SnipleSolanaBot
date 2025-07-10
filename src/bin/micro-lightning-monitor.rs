@@ -20,9 +20,11 @@ use tower_http::cors::CorsLayer;
 use tracing::{info, warn, error};
 
 use overmind_protocol::modules::micro_lightning::{
-    OperationControl, OperationStatistics, MicroTradingStats, StatusReport,
-    MetricsCollector, MicroWalletHealthReport
+    OperationControl, MicroTradingStats, StatusReport
 };
+use overmind_protocol::modules::micro_lightning::operation_control::OperationStatistics;
+use overmind_protocol::modules::micro_lightning::metrics::MetricsCollector;
+use overmind_protocol::modules::wallet_manager::MicroWalletHealthReport;
 
 /// Micro-Lightning monitor state
 #[derive(Clone)]

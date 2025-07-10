@@ -4,7 +4,7 @@
 //! Uses machine learning for anomaly detection and behavioral analysis
 //! Real-time threat assessment and automated response
 
-use anyhow::{Result, anyhow};
+use anyhow::Result;
 use serde::{Deserialize, Serialize};
 use std::collections::{HashMap, VecDeque};
 use std::sync::{Arc, RwLock};
@@ -13,7 +13,7 @@ use tokio::time::interval;
 use tracing::{debug, info, warn, error};
 
 /// Security event types
-#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq, Hash)]
 pub enum SecurityEventType {
     /// Unauthorized access attempt
     UnauthorizedAccess,

@@ -5,17 +5,16 @@
 
 use anyhow::{Result, anyhow};
 use serde::{Deserialize, Serialize};
-use std::collections::HashMap;
 use std::sync::{Arc, RwLock};
 use std::time::{Duration, Instant};
 use tokio::sync::mpsc;
-use tracing::{debug, info, warn, error};
+use tracing::{debug, info};
 use uuid::Uuid;
 
 use crate::forge::hot_loader::{
-    StrategyHotLoader, StrategyContainer, MarketData, HftContext, StrategyMetrics
+    StrategyHotLoader, StrategyContainer, MarketData, HftContext
 };
-use crate::forge::{CompiledArtifact, TheForge};
+use crate::forge::CompiledArtifact;
 
 /// Dynamic Agent - agent z hot-swappable strategy logic
 #[derive(Debug)]

@@ -3,7 +3,7 @@
 
 use crate::modules::data_ingestor::MarketData;
 use crate::modules::memcoin_strategies::{
-    MemcoinStrategy, LiquidityEvent, SocialSignal, WhaleTransaction,
+    MemcoinStrategy, LiquidityEvent, SocialSignal,
     liquidity_tsunami::LiquidityTsunamiStrategy,
     social_fission::SocialFissionStrategy,
     whale_shadowing::WhaleShadowingStrategy,
@@ -12,10 +12,8 @@ use crate::modules::memcoin_strategies::{
 };
 use anyhow::Result;
 use serde::{Deserialize, Serialize};
-use std::collections::HashMap;
-use std::sync::Arc;
-use tokio::sync::{mpsc, RwLock};
-use tracing::{debug, error, info, warn};
+use tokio::sync::mpsc;
+use tracing::{debug, error, info};
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct TradingSignal {

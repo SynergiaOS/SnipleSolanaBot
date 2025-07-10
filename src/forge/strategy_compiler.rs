@@ -9,7 +9,7 @@ use std::path::{Path, PathBuf};
 use std::process::{Command, Stdio};
 use std::fs;
 use std::time::{Duration, Instant};
-use tracing::{debug, info, warn, error};
+use tracing::{info, warn, error};
 use sha2::{Sha256, Digest};
 use tempfile::TempDir;
 

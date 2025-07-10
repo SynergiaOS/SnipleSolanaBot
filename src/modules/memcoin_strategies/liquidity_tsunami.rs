@@ -5,7 +5,7 @@
 //! Wykonanie: < 120ms (UrgencyLevel::Flash)
 
 use super::*;
-use crate::modules::strategy::{TradingSignal, TradeAction, StrategyType};
+use crate::modules::strategy::{TradingSignal, StrategyType};
 use anyhow::Result;
 use async_trait::async_trait;
 use serde::{Deserialize, Serialize};

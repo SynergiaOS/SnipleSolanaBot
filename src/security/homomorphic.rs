@@ -7,14 +7,14 @@
 use anyhow::{Result, anyhow};
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
-use std::ops::{Add, Mul};
+use std::ops::Add;
 use std::sync::{Arc, RwLock};
-use tracing::{debug, info, warn, error};
+use tracing::{debug, info};
 use rand::{RngCore, rngs::OsRng};
 use sha3::{Sha3_256, Digest};
 
 /// Homomorphic encryption parameters
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct HomomorphicParams {
     /// Security parameter (lattice dimension)
     pub n: usize,

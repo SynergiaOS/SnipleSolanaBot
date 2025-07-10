@@ -9,7 +9,7 @@ use std::collections::HashMap;
 use tracing::{debug, info, warn};
 
 use super::entry_conditions::TokenData;
-use super::micro_wallet::{MicroWallet, WalletType};
+use super::micro_wallet::MicroWallet;
 
 /// DEX options for trade execution
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]

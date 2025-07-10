@@ -13,7 +13,7 @@ use std::sync::{Arc, RwLock};
 use std::time::Duration;
 use chrono::{DateTime, Utc};
 use tokio::sync::{mpsc, RwLock as AsyncRwLock};
-use tracing::{debug, info, warn, error};
+use tracing::{debug, info, error};
 use uuid::Uuid;
 
 /// Collective Consciousness Engine

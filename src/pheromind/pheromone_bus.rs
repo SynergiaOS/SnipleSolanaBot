@@ -4,13 +4,13 @@
 //! Zastępuje SharedKnowledge aktywnym strumieniem sygnałów
 
 use anyhow::{Result, anyhow};
-use redis::{Client, Connection, Commands, RedisResult, FromRedisValue};
+use redis::{Client, Commands, RedisResult, FromRedisValue};
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use std::sync::Arc;
 use std::time::{Duration, SystemTime, UNIX_EPOCH};
 use tokio::sync::{RwLock, mpsc};
-use tracing::{debug, info, warn, error};
+use tracing::{debug, warn};
 use uuid::Uuid;
 
 /// Typ sygnału feromonowego

@@ -1,11 +1,9 @@
 // THE OVERMIND PROTOCOL - Jito Bundler Module
 // Advanced Jito bundle handling with exponential backoff and error recovery
 
-use anyhow::{anyhow, Result};
+use anyhow::Result;
 use backoff::ExponentialBackoff;
 use serde::{Deserialize, Serialize};
-use solana_sdk::signature::Signature;
-use std::str::FromStr;
 use std::time::{Duration, Instant};
 use tokio::time::sleep;
 use tracing::{debug, error, info, warn};

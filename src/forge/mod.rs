@@ -14,7 +14,7 @@ pub mod formal_verification;
 use anyhow::Result;
 use std::sync::Arc;
 use tokio::sync::RwLock;
-use tracing::{info, error};
+use tracing::info;
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 
@@ -22,8 +22,8 @@ use tensorzero_gateway::{TensorZeroGateway, TensorZeroConfig};
 use dsl_generator::{StrategyDSLGenerator, StrategyDSL};
 use strategy_compiler::{StrategyCompiler, CompilerConfig};
 use hot_loader::{StrategyHotLoader, StrategyContainer};
-use autonomous_evolution::{AutonomousEvolutionEngine, EvolutionConfig};
-use formal_verification::{FormalVerificationEngine, VerificationConfig};
+use autonomous_evolution::AutonomousEvolutionEngine;
+use formal_verification::FormalVerificationEngine;
 
 /// FORGE - główny orchestrator ewolucji strategii
 #[derive(Debug)]

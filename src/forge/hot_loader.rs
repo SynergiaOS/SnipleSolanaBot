@@ -6,8 +6,8 @@
 use anyhow::{Result, anyhow};
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
-use std::ffi::{CString, CStr};
-use std::os::raw::{c_char, c_void};
+use std::ffi::CStr;
+use std::os::raw::c_char;
 use std::path::Path;
 use std::sync::{Arc, RwLock};
 use std::time::{Duration, Instant};

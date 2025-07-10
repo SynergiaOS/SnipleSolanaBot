@@ -9,10 +9,10 @@ use rand::{RngCore, rngs::OsRng};
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use std::sync::{Arc, RwLock};
-use std::time::{Duration, Instant, SystemTime, UNIX_EPOCH};
-use tracing::{debug, info, warn, error};
+use std::time::{Duration, SystemTime, UNIX_EPOCH};
+use tracing::{debug, info};
 use sha3::{Sha3_256, Digest};
-use aes_gcm::{Aes256Gcm, Key, Nonce, aead::{Aead, NewAead}};
+use aes_gcm::{Aes256Gcm, Key, Nonce, aead::Aead, KeyInit};
 
 /// Quantum-safe key encapsulation mechanism
 #[derive(Debug, Clone)]
@@ -92,8 +92,8 @@ pub struct QuantumSafeConfig {
 impl Default for QuantumSafeConfig {
     fn default() -> Self {
         Self {
-            key_rotation_interval: Duration::from_hours(24),
-            max_key_age: Duration::from_hours(72),
+            key_rotation_interval: Duration::from_secs(24 * 3600),
+            max_key_age: Duration::from_secs(72 * 3600),
             auto_rotation: true,
             security_level: 256,
             forward_secrecy: true,
@@ -144,7 +144,7 @@ impl QuantumSafeKEM {
             public_key,
             private_key,
             generated_at: SystemTime::now(),
-            expiry_duration: Duration::from_hours(72),
+            expiry_duration: Duration::from_secs(72 * 3600),
         })
     }
     
@@ -238,7 +238,7 @@ impl QuantumSafeManager {
         OsRng.fill_bytes(&mut nonce_bytes);
         
         // Encrypt with AES-256-GCM
-        let key = Key::from_slice(&derived_key);
+        let key = Key::<Aes256Gcm>::from_slice(&derived_key);
         let cipher = Aes256Gcm::new(key);
         let nonce = Nonce::from_slice(&nonce_bytes);
         
@@ -294,7 +294,7 @@ impl QuantumSafeManager {
         let derived_key = hasher.finalize();
         
         // Decrypt with AES-256-GCM
-        let key = Key::from_slice(&derived_key);
+        let key = Key::<Aes256Gcm>::from_slice(&derived_key);
         let cipher = Aes256Gcm::new(key);
         let nonce = Nonce::from_slice(&quantum_secret.nonce);
         

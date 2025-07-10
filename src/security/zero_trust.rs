@@ -9,8 +9,7 @@ use serde::{Deserialize, Serialize};
 use std::collections::{HashMap, HashSet};
 use std::sync::{Arc, RwLock};
 use std::time::{Duration, SystemTime, UNIX_EPOCH};
-use tracing::{debug, info, warn, error};
-use uuid::Uuid;
+use tracing::{debug, info, warn};
 
 /// Zero-trust identity
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -41,7 +40,7 @@ pub struct ZeroTrustIdentity {
 }
 
 /// Identity types in zero-trust model
-#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq, Hash)]
 pub enum IdentityType {
     /// Human user
     User,
@@ -203,7 +202,7 @@ impl Default for ZeroTrustConfig {
     fn default() -> Self {
         Self {
             default_trust_score: 0.5,
-            verification_expiry: Duration::from_hours(1),
+            verification_expiry: Duration::from_secs(3600),
             min_trust_score: 0.7,
             continuous_verification: true,
             trust_decay_rate: 0.01,
@@ -327,7 +326,7 @@ impl ZeroTrustEngine {
     
     /// Register new identity
     pub fn register_identity(&self, mut identity: ZeroTrustIdentity) -> Result<()> {
-        info!("🆔 Registering identity: {} ({})", identity.id, identity.identity_type as u8);
+        info!("🆔 Registering identity: {} ({:?})", identity.id, identity.identity_type);
         
         // Set default trust score if not provided
         if identity.trust_score == 0.0 {

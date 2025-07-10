@@ -3,16 +3,14 @@
 //! Pełna integracja z SwarmAgentic AI dla autonomicznej kompilacji strategii
 //! Self-improving strategy generation through AI feedback loops
 
-use anyhow::{Result, anyhow};
+use anyhow::Result;
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use std::sync::{Arc, RwLock};
 use std::time::{Duration, Instant};
-use tokio::sync::mpsc;
-use tracing::{debug, info, warn, error};
+use tracing::{info, warn, error};
 use uuid::Uuid;
 
-use super::{CompiledArtifact, TheForge};
 use super::tensorzero_gateway::{TensorZeroGateway, InferenceRequest, InferenceInput, Message};
 use super::strategy_compiler::StrategyCompiler;
 use crate::agents::{AgentManager, DynamicAgentMetrics, AgentType};

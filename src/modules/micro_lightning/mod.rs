@@ -41,10 +41,9 @@ pub use metrics::{MicroTradingStats, StatusReport};
 
 use anyhow::Result;
 use std::time::{SystemTime, Duration};
-use tracing::{info, warn, error};
+use tracing::{info, warn};
 use tokio::time::sleep;
 
-use crate::modules::strategy::{TradingSignal, StrategyType};
 use crate::modules::hft_engine::HftEngine;
 use crate::modules::helius_streamer::HeliusStreamer;
 

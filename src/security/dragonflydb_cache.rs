@@ -9,9 +9,8 @@ use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use std::env;
 use std::sync::{Arc, RwLock};
-use std::time::{Duration, Instant};
-use tokio::time::interval;
-use tracing::{debug, info, warn, error};
+use std::time::Duration;
+use tracing::{debug, info, warn};
 
 /// DragonflyDB configuration
 #[derive(Debug, Clone)]
@@ -124,7 +123,7 @@ impl DragonflyCache {
         info!("🐉 Initializing DragonflyDB cache client");
         info!("🌐 VPC: {}, CIDR: {}", config.vpc_id, config.cidr);
         
-        let client = Client::open(&config.url)
+        let client = Client::open(config.url.as_str())
             .map_err(|e| anyhow!("Failed to create DragonflyDB client: {}", e))?;
         
         Ok(DragonflyCache {
@@ -150,12 +149,12 @@ impl DragonflyCache {
             .map_err(|e| anyhow!("Failed to connect to DragonflyDB: {}", e))?;
         
         // Test connection
-        let _: String = conn.ping()
+        let _: String = redis::cmd("PING").query(&mut conn)
             .map_err(|e| anyhow!("DragonflyDB ping failed: {}", e))?;
         
         // Set database if specified
         if self.config.database > 0 {
-            let _: () = conn.select(self.config.database)
+            let _: () = redis::cmd("SELECT").arg(self.config.database).query(&mut conn)
                 .map_err(|e| anyhow!("Failed to select database {}: {}", self.config.database, e))?;
         }
         
@@ -282,11 +281,11 @@ impl DragonflyCache {
     // Private helper methods
     
     async fn get_from_dragonflydb(&self, key: &str) -> Result<Option<String>> {
-        let connection = self.connection.read().unwrap();
-        if let Some(ref mut conn) = connection.as_ref() {
+        let mut connection = self.connection.write().unwrap();
+        if let Some(ref mut conn) = connection.as_mut() {
             // Note: This is a simplified version. In real implementation,
             // we'd need to handle connection pooling and async properly
-            match conn.get::<&str, Option<String>>(key) {
+            match redis::cmd("GET").arg(key).query::<Option<String>>(conn) {
                 Ok(value) => Ok(value),
                 Err(e) => Err(anyhow!("DragonflyDB get error: {}", e)),
             }
@@ -296,9 +295,9 @@ impl DragonflyCache {
     }
     
     async fn set_in_dragonflydb(&self, key: &str, value: &str, ttl_seconds: u64) -> Result<()> {
-        let connection = self.connection.read().unwrap();
-        if let Some(ref mut conn) = connection.as_ref() {
-            let _: () = conn.set_ex(key, value, ttl_seconds)
+        let mut connection = self.connection.write().unwrap();
+        if let Some(ref mut conn) = connection.as_mut() {
+            let _: () = redis::cmd("SETEX").arg(key).arg(ttl_seconds).arg(value).query(conn)
                 .map_err(|e| anyhow!("DragonflyDB set error: {}", e))?;
             Ok(())
         } else {
@@ -307,9 +306,9 @@ impl DragonflyCache {
     }
     
     async fn delete_from_dragonflydb(&self, key: &str) -> Result<()> {
-        let connection = self.connection.read().unwrap();
-        if let Some(ref mut conn) = connection.as_ref() {
-            let _: () = conn.del(key)
+        let mut connection = self.connection.write().unwrap();
+        if let Some(ref mut conn) = connection.as_mut() {
+            let _: () = redis::cmd("DEL").arg(key).query(conn)
                 .map_err(|e| anyhow!("DragonflyDB delete error: {}", e))?;
             Ok(())
         } else {

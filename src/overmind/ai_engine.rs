@@ -326,4 +326,30 @@ impl AIEngine {
     pub fn is_initialized(&self) -> bool {
         self.model.is_some()
     }
+
+    /// Generate text response (simplified implementation for SwarmAgentic AI)
+    pub async fn generate_text(&self, prompt: &str) -> Result<String> {
+        debug!("🤖 Generating text response for prompt: {}", prompt);
+
+        // Simplified text generation - in production, use proper LLM
+        // For now, return structured responses based on prompt content
+        let response = if prompt.contains("sentiment") {
+            "Positive sentiment detected with high confidence. Market indicators suggest bullish trend."
+        } else if prompt.contains("risk") {
+            "Medium risk assessment. Recommend conservative position sizing with 15% stop-loss."
+        } else if prompt.contains("strategy") {
+            "Multi-agent arbitrage strategy recommended. Focus on cross-DEX opportunities with Jito bundle optimization."
+        } else if prompt.contains("failure") {
+            "Failure analysis complete. Root cause: insufficient liquidity. Recommendation: implement dynamic slippage adjustment."
+        } else if prompt.contains("improvement") {
+            "System optimization plan: 1) Enhance sentiment analysis accuracy, 2) Implement adaptive risk models, 3) Optimize execution latency."
+        } else {
+            "Analysis complete. Recommend monitoring market conditions and adjusting strategy parameters accordingly."
+        };
+
+        // Update metrics
+        self.update_metrics("text_generation_calls".to_string(), 1.0).await;
+
+        Ok(response.to_string())
+    }
 }

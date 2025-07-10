@@ -35,6 +35,7 @@ pub mod swarmagentic;
 pub mod autoschema;
 pub mod security;
 pub mod cryptoinsight;
+pub mod memory;
 
 // Re-export commonly used items
 pub use config::Config;
@@ -60,6 +61,17 @@ pub use cryptoinsight::{
     HybridFeatureStore, FeatureSet, RedisVectorDB,
     MemecoinShield, DecoyFactory, JitoBundle,
     PumpFunMonitor, WashTradingDetector, PatternAnalyzer, PumpFunPattern
+};
+
+// Ultra-Low Latency Memory System exports - SolanaNoa TradeMaster
+pub use memory::{
+    UltraMemorySystem, MemoryConfig, MemoryMetrics, MemoryHealthStatus,
+    WorkingMemory, MemoryBatch, TransactionContext, TransactionType,
+    EpisodicStorage, SemanticIndex, MemorySnapshot,
+    JitoMemoryWriter, BundleProcessor, MEVTagger,
+    SecurityVault, PolicyEngine, MemoryAccess,
+    GPUEmbeddings, CUDAProcessor, VectorBatch,
+    BackupManager, RestoreProtocol, IntegrityVerifier
 };
 
 // GEOHOT CORE v4.4 exports - Pure Rust Implementation

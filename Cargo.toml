@@ -27,6 +27,26 @@ path = "src/bin/micro-lightning-monitor.rs"
 name = "phoenix-memcoin-bot"
 path = "src/bin/phoenix-memcoin-bot.rs"
 
+[[bin]]
+name = "neural-execution-demo"
+path = "src/bin/neural-execution-demo.rs"
+
+[[bin]]
+name = "neural-execution-optimized-demo"
+path = "src/bin/neural-execution-optimized-demo.rs"
+
+[[bin]]
+name = "test-qdrant-connection"
+path = "test_qdrant_connection.rs"
+
+[[bin]]
+name = "test-qdrant-rust-client"
+path = "test_qdrant_rust_client.rs"
+
+[[bin]]
+name = "test-qdrant-simple"
+path = "test_qdrant_simple.rs"
+
 [dependencies]
 # Core async runtime
 tokio = { version = "1.35", features = ["full"] }
@@ -99,8 +119,8 @@ candle-transformers = { git = "https://github.com/huggingface/candle.git" }
 hf-hub = "0.3"
 tokenizers = "0.19"
 
-# THE OVERMIND PROTOCOL - Knowledge Graph & Vector DB - REMOVED for HOTZ PHILOSOPHY
-# Use in-memory structures instead of heavy dependencies
+# THE OVERMIND PROTOCOL - Knowledge Graph & Vector DB
+qdrant-client = "1.7"  # Much older version to avoid zeroize conflicts
 
 # THE OVERMIND PROTOCOL - Swarm Agent Framework
 async-trait = "0.1"

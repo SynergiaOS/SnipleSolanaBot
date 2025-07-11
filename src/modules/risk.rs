@@ -562,6 +562,10 @@ mod tests {
             max_daily_loss: 500.0,
             min_confidence_threshold: 0.6,
             kinetic_shield: KineticShieldConfig::default(),
+            micro_lightning_enabled: true,
+            micro_operation_max_loss: 4.0,
+            micro_time_limit_minutes: 60,
+            micro_emergency_slippage: 0.05,
         };
 
         let manager = RiskManager::new(signal_rx, execution_tx, risk_params);

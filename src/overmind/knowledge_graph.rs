@@ -5,20 +5,19 @@
 
 use anyhow::Result;
 use reqwest::Client;
-// Future Qdrant integration - currently using HTTP API
+// Future Qdrant native client integration when dependency conflicts are resolved
 // use qdrant_client::{
-//     client::QdrantClient,
+//     Qdrant,
 //     qdrant::{
-//         CreateCollection, Distance, VectorParams, PointStruct,
-//         SearchPoints, Filter, Condition, FieldCondition, Match
+//         CreateCollectionBuilder, Distance, VectorParamsBuilder, PointStruct,
+//         SearchPointsBuilder, Filter, Condition, FieldCondition, Match, Value
 //     }
 // };
-// use polars::prelude::*;
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use tokio::sync::RwLock;
 use uuid::Uuid;
-use tracing::{info, debug};
+use tracing::{info, debug, warn};
 
 /// Entity in the knowledge graph
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -47,7 +46,7 @@ pub struct Relation {
     pub version: u64,
 }
 
-/// Knowledge graph implementation with Qdrant HTTP API integration
+/// Knowledge graph implementation with Qdrant Cloud HTTP API integration
 pub struct KnowledgeGraph {
     /// In-memory entity cache
     entities: RwLock<HashMap<Uuid, Entity>>,
@@ -55,11 +54,14 @@ pub struct KnowledgeGraph {
     /// In-memory relation cache
     relations: RwLock<HashMap<Uuid, Relation>>,
 
-    /// HTTP client for Qdrant API
+    /// HTTP client for Qdrant Cloud API
     http_client: Client,
 
     /// Qdrant configuration
     qdrant_config: QdrantConfig,
+
+    /// Connection status
+    qdrant_connected: bool,
 }
 
 /// Qdrant configuration
@@ -74,35 +76,65 @@ pub struct QdrantConfig {
 impl KnowledgeGraph {
     /// Create new knowledge graph instance
     pub async fn new() -> Result<Self> {
-        info!("🧠 Initializing Knowledge Graph with Qdrant HTTP API");
+        info!("🧠 Initializing Knowledge Graph with Qdrant Cloud");
 
         let http_client = Client::new();
 
         let qdrant_config = QdrantConfig {
             url: std::env::var("QDRANT_URL")
-                .unwrap_or_else(|_| "http://localhost:6334".to_string()),
-            api_key: std::env::var("QDRANT_API_KEY").ok(),
+                .unwrap_or_else(|_| "https://b2654b99-faa9-4e39-b9b5-cf2e1b176bca.us-east4-0.gcp.cloud.qdrant.io:6334".to_string()),
+            api_key: std::env::var("QDRANT_API_KEY")
+                .or_else(|_| Ok::<String, std::env::VarError>("eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhY2Nlc3MiOiJtIn0.YZdwoy8_iAFBBTw2Z89i5_VhjHSAzKUF78u6qdYAwkU".to_string()))
+                .ok(),
             collection_name: "overmind_knowledge".to_string(),
             vector_size: 384, // Default embedding size
         };
+
+        // Test Qdrant Cloud connection
+        let qdrant_connected = Self::test_qdrant_connection(&http_client, &qdrant_config).await;
+
+        if qdrant_connected {
+            info!("✅ Connected to Qdrant Cloud");
+        } else {
+            warn!("⚠️ Failed to connect to Qdrant Cloud");
+            warn!("📝 Continuing with in-memory mode only");
+        }
 
         let kg = Self {
             entities: RwLock::new(HashMap::new()),
             relations: RwLock::new(HashMap::new()),
             http_client,
             qdrant_config,
+            qdrant_connected,
         };
 
-        // Initialize Qdrant collection
-        if let Err(e) = kg.initialize_qdrant_collection().await {
-            tracing::warn!("⚠️ Failed to initialize Qdrant collection: {}", e);
-            tracing::info!("📝 Continuing with in-memory mode only");
+        // Initialize Qdrant collection if connected
+        if kg.qdrant_connected {
+            if let Err(e) = kg.initialize_qdrant_collection().await {
+                warn!("⚠️ Failed to initialize Qdrant collection: {}", e);
+            }
         }
 
         Ok(kg)
     }
 
-    /// Initialize Qdrant collection via HTTP API
+    /// Test Qdrant Cloud connection via HTTP API
+    async fn test_qdrant_connection(client: &Client, config: &QdrantConfig) -> bool {
+        let collections_url = format!("{}/collections", config.url);
+
+        let mut request = client.get(&collections_url);
+
+        if let Some(api_key) = &config.api_key {
+            request = request.header("api-key", api_key);
+        }
+
+        match request.send().await {
+            Ok(response) => response.status().is_success(),
+            Err(_) => false,
+        }
+    }
+
+    /// Initialize Qdrant collection using native client
     async fn initialize_qdrant_collection(&self) -> Result<()> {
         debug!("🔧 Initializing Qdrant collection: {}", self.qdrant_config.collection_name);
 
@@ -153,6 +185,7 @@ impl KnowledgeGraph {
             anyhow::bail!("Failed to create Qdrant collection: {}", error_text);
         }
 
+        info!("✅ Created Qdrant collection: {}", self.qdrant_config.collection_name);
         Ok(())
     }
 

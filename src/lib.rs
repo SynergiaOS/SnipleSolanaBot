@@ -36,6 +36,7 @@ pub mod autoschema;
 pub mod security;
 pub mod cryptoinsight;
 pub mod memory;
+pub mod neural_execution;
 
 // Re-export commonly used items
 pub use config::Config;
@@ -72,6 +73,17 @@ pub use memory::{
     SecurityVault, PolicyEngine, MemoryAccess,
     GPUEmbeddings, CUDAProcessor, VectorBatch,
     BackupManager, RestoreProtocol, IntegrityVerifier
+};
+
+// Neural Execution Engine exports - Ultra-Low Latency Trading System
+pub use neural_execution::{
+    NeuralExecutionEngine, NeuralExecutionConfig, NeuralExecutionMetrics, NeuralExecutionHealth,
+    ExecutionRequest, ExecutionResult, ExecutionStatus, ExecutionPriority,
+    NeuralRouter, HardwareTopology, RoutingDecision, PathOptimizer,
+    AtomicExecutor, ZeroCopyDispatcher, ExecutionPipeline, SIMDProcessor,
+    NeuralPredictor, MLExecutionModel, TimingPredictor, ReinforcementLearner,
+    HardwareAccelerator, FPGAInterface, ASICController, CustomSilicon,
+    ExecutionMonitor, PerformanceProfiler, BottleneckDetector, MicrosecondAnalytics
 };
 
 // GEOHOT CORE v4.4 exports - Pure Rust Implementation

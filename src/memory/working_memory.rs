@@ -2,14 +2,14 @@
 // Target: <1ms response time, 16GB hot memory, 32 txs/batch
 
 use super::{WorkingMemoryConfig, ComponentHealth, HealthStatus};
-use anyhow::{anyhow, Result};
+use anyhow::Result;
 use redis::{Client, Commands, Connection, RedisResult};
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use std::sync::Arc;
 use std::time::{Duration, SystemTime, UNIX_EPOCH};
 use tokio::sync::RwLock;
-use tracing::{debug, error, info, warn};
+use tracing::{debug, error, info};
 use uuid::Uuid;
 
 /// Transaction context for working memory

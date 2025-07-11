@@ -4,7 +4,7 @@
 //! Przygotowanie na zagrożenia, które jeszcze nie istnieją
 
 use anyhow::{Result, anyhow};
-use pqcrypto_kyber::kyber768;
+use pqcrypto_mlkem::mlkem768;  // SECURITY: Updated from unmaintained pqcrypto-kyber
 use pqcrypto_traits::kem::{PublicKey as PQPublicKey, Ciphertext as PQCiphertext, SharedSecret};
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
@@ -37,11 +37,11 @@ pub struct PostQuantumSignature {
 /// Klucz post-quantum
 #[derive(Clone)]
 pub struct QuantumKeyPair {
-    /// Klucz prywatny (Kyber768)
-    pub private_key: kyber768::SecretKey,
-    
-    /// Klucz publiczny (Kyber768)
-    pub public_key: kyber768::PublicKey,
+    /// Klucz prywatny (ML-KEM-768)
+    pub private_key: mlkem768::SecretKey,
+
+    /// Klucz publiczny (ML-KEM-768)
+    pub public_key: mlkem768::PublicKey,
     
     /// ID klucza
     pub key_id: String,
@@ -162,7 +162,7 @@ impl QuantumSafeSigner {
         // Wygeneruj początkowy klucz
         if signer.config.enable_quantum_crypto {
             signer.generate_new_keypair()?;
-            info!("🔐 QuantumSafeSigner initialized with Kyber768");
+            info!("🔐 QuantumSafeSigner initialized with ML-KEM-768");
         } else {
             info!("🔐 QuantumSafeSigner initialized in disabled mode");
         }
@@ -202,14 +202,14 @@ impl QuantumSafeSigner {
         let message = self.prepare_message_for_signing(transaction)?;
         let message_hash = self.hash_message(&message);
         
-        // Podpisz używając Kyber768
-        let signature_bytes = self.sign_with_kyber768(&message, keypair)?;
+        // Podpisz używając ML-KEM-768
+        let signature_bytes = self.sign_with_mlkem768(&message, keypair)?;
         
         let signature = PostQuantumSignature {
             signature: signature_bytes,
             public_key: PQPublicKey::as_bytes(&keypair.public_key).to_vec(),
             timestamp: SystemTime::now().duration_since(UNIX_EPOCH)?.as_secs(),
-            algorithm: "CRYSTALS-Kyber768".to_string(),
+            algorithm: "ML-KEM-768".to_string(),
             message_hash,
             metadata: self.create_signature_metadata(transaction),
         };
@@ -219,7 +219,7 @@ impl QuantumSafeSigner {
         self.metrics.total_signatures += 1;
         self.metrics.quantum_signatures += 1;
         
-        debug!("🔐 Transaction signed with Kyber768: {}", transaction.transaction_id);
+        debug!("🔐 Transaction signed with ML-KEM-768: {}", transaction.transaction_id);
         Ok(signature)
     }
     
@@ -255,8 +255,8 @@ impl QuantumSafeSigner {
             return Ok(false);
         }
         
-        // Weryfikuj podpis Kyber768
-        let is_valid = self.verify_kyber768_signature(&message, signature)?;
+        // Weryfikuj podpis ML-KEM-768
+        let is_valid = self.verify_mlkem768_signature(&message, signature)?;
         
         // Cache result
         self.verification_cache.insert(cache_key, is_valid);
@@ -273,9 +273,9 @@ impl QuantumSafeSigner {
         Ok(is_valid)
     }
     
-    /// Wygeneruj nowy klucz Kyber768
+    /// Wygeneruj nowy klucz ML-KEM-768
     fn generate_new_keypair(&mut self) -> Result<()> {
-        let (public_key, secret_key) = kyber768::keypair();
+        let (public_key, secret_key) = mlkem768::keypair();
         
         let now = SystemTime::now().duration_since(UNIX_EPOCH)?.as_secs();
         let expires_at = if self.config.key_lifetime_seconds > 0 {
@@ -287,7 +287,7 @@ impl QuantumSafeSigner {
         let keypair = QuantumKeyPair {
             private_key: secret_key,
             public_key,
-            key_id: format!("kyber768_{}", uuid::Uuid::new_v4()),
+            key_id: format!("mlkem768_{}", uuid::Uuid::new_v4()),
             created_at: now,
             expires_at,
         };
@@ -301,7 +301,7 @@ impl QuantumSafeSigner {
         self.signature_count = 0;
         self.metrics.key_rotations += 1;
         
-        info!("🔑 Generated new Kyber768 keypair");
+        info!("🔑 Generated new ML-KEM-768 keypair");
         Ok(())
     }
     
@@ -364,10 +364,10 @@ impl QuantumSafeSigner {
         hasher.finalize().to_vec()
     }
     
-    /// Podpisz używając Kyber768
-    fn sign_with_kyber768(&self, message: &[u8], keypair: &QuantumKeyPair) -> Result<Vec<u8>> {
-        // Kyber to KEM (Key Encapsulation Mechanism), nie signature scheme
-        // W rzeczywistej implementacji użylibyśmy Dilithium do podpisów
+    /// Podpisz używając ML-KEM-768
+    fn sign_with_mlkem768(&self, message: &[u8], keypair: &QuantumKeyPair) -> Result<Vec<u8>> {
+        // ML-KEM to KEM (Key Encapsulation Mechanism), nie signature scheme
+        // W rzeczywistej implementacji użylibyśmy ML-DSA do podpisów
         // Na razie symulujemy podpis przez enkapsulację klucza
         
         let message_hash = self.hash_message(message);
@@ -378,17 +378,17 @@ impl QuantumSafeSigner {
         signature.extend_from_slice(&keypair.key_id.as_bytes());
         signature.extend_from_slice(&keypair.created_at.to_le_bytes());
         
-        // Dodaj "podpis" Kyber (symulacja)
-        let (ciphertext, shared_secret) = kyber768::encapsulate(&keypair.public_key);
+        // Dodaj "podpis" ML-KEM (symulacja)
+        let (ciphertext, shared_secret) = mlkem768::encapsulate(&keypair.public_key);
         signature.extend_from_slice(ciphertext.as_bytes());
         signature.extend_from_slice(shared_secret.as_bytes());
         
         Ok(signature)
     }
     
-    /// Weryfikuj podpis Kyber768
-    fn verify_kyber768_signature(&self, message: &[u8], signature: &PostQuantumSignature) -> Result<bool> {
-        // W rzeczywistej implementacji użylibyśmy Dilithium do weryfikacji
+    /// Weryfikuj podpis ML-KEM-768
+    fn verify_mlkem768_signature(&self, message: &[u8], signature: &PostQuantumSignature) -> Result<bool> {
+        // W rzeczywistej implementacji użylibyśmy ML-DSA do weryfikacji
         // Na razie symulujemy weryfikację
         
         let message_hash = self.hash_message(message);
@@ -407,7 +407,7 @@ impl QuantumSafeSigner {
         let mut metadata = HashMap::new();
         
         metadata.insert("signer_version".to_string(), "1.0.0".to_string());
-        metadata.insert("algorithm".to_string(), "CRYSTALS-Kyber768".to_string());
+        metadata.insert("algorithm".to_string(), "ML-KEM-768".to_string());
         metadata.insert("transaction_type".to_string(), transaction.transaction_type.clone());
         metadata.insert("signature_count".to_string(), self.signature_count.to_string());
         
@@ -490,7 +490,7 @@ mod tests {
         };
         
         let signature = signer.sign_transaction(&transaction).unwrap();
-        assert_eq!(signature.algorithm, "CRYSTALS-Kyber768");
+        assert_eq!(signature.algorithm, "ML-KEM-768");
         assert!(!signature.signature.is_empty());
         
         // Test verification

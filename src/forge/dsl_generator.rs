@@ -501,7 +501,7 @@ pub enum StrategyType {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use std::sync::Arc;
+
     
     #[test]
     fn test_performance_trend_calculation() {

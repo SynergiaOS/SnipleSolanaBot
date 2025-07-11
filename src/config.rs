@@ -245,7 +245,7 @@ impl Config {
             },
             api: ApiConfig {
                 helius_api_key: env::var("SNIPER_HELIUS_API_KEY")
-                    .unwrap_or_else(|_| "155e1444-1d0d-4a79-a6c7-0c2e89e77f0c".to_string()),
+                    .unwrap_or_else(|_| "PLACEHOLDER_HELIUS_KEY".to_string()),
                 helius_rpc_url: env::var("SNIPER_HELIUS_RPC_URL")
                     .unwrap_or_else(|_| "https://mainnet.helius-rpc.com".to_string()),
                 helius_ws_url: env::var("SNIPER_HELIUS_WS_URL")

@@ -10,8 +10,8 @@ license = "MIT"
 # Chimera Client Integration
 chimera_client = { path = "../chimera_client", features = ["geo_encryption"] }
 
-# Minimal Solana SDK (no default features for bloat control)
-solana-sdk = { version = "1.18", default-features = false, features = ["program", "full"] }
+# Minimal Solana SDK (no default features for bloat control) - UPDATED FOR SECURITY
+solana-sdk = { version = "2.3", default-features = false, features = ["program", "full"] }
 
 # Core async runtime (minimal features only)
 tokio = { version = "1.35", features = ["rt-multi-thread", "macros"] }

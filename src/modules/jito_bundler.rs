@@ -2,7 +2,6 @@
 // Advanced Jito bundle handling with exponential backoff and error recovery
 
 use anyhow::Result;
-use backoff::ExponentialBackoff;
 use serde::{Deserialize, Serialize};
 use std::time::{Duration, Instant};
 use tokio::time::sleep;
@@ -12,7 +11,9 @@ use tracing::{debug, error, info, warn};
 pub struct JitoBundler {
     pub auth_key: String,
     pub endpoint: String,
-    pub backoff_strategy: ExponentialBackoff,
+    pub max_attempts: u32,  // SECURITY: Updated from backoff strategy
+    pub min_delay: Duration,
+    pub max_delay: Duration,
     pub max_retries: usize,
     pub timeout: Duration,
 }
@@ -53,16 +54,12 @@ pub enum JitoError {
 impl JitoBundler {
     /// Create new Jito bundler with advanced configuration
     pub fn new(key: String, endpoint: String) -> Self {
-        let mut backoff = ExponentialBackoff::default();
-        backoff.initial_interval = Duration::from_millis(100);
-        backoff.multiplier = 2.0;
-        backoff.max_interval = Duration::from_secs(5);
-        backoff.max_elapsed_time = Some(Duration::from_secs(30));
-
         Self {
             auth_key: key,
             endpoint,
-            backoff_strategy: backoff,
+            max_attempts: 5,  // SECURITY: Updated backoff configuration
+            min_delay: Duration::from_millis(100),
+            max_delay: Duration::from_secs(5),
             max_retries: 5,
             timeout: Duration::from_secs(10),
         }
@@ -252,15 +249,14 @@ impl JitoBundler {
         }
     }
 
-    /// Calculate exponential backoff delay
+    /// Calculate exponential backoff delay using new API
     fn calculate_backoff_delay(&self, retry_count: usize) -> Duration {
-        let base_delay = Duration::from_millis(100);
         let multiplier = 2_u64.pow(retry_count as u32);
-        let delay = Duration::from_millis(base_delay.as_millis() as u64 * multiplier);
-        
+        let delay = Duration::from_millis(self.min_delay.as_millis() as u64 * multiplier);
+
         // Cap at max interval
-        if delay > Duration::from_secs(5) {
-            Duration::from_secs(5)
+        if delay > self.max_delay {
+            self.max_delay
         } else {
             delay
         }

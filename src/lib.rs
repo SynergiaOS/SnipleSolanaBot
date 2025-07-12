@@ -37,6 +37,7 @@ pub mod security;
 pub mod cryptoinsight;
 pub mod memory;
 pub mod neural_execution;
+pub mod cargo_resolver;
 
 // Re-export commonly used items
 pub use config::Config;

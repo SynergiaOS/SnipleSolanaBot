@@ -1,0 +1,154 @@
+THE-OVERMIND-PROTOCOL/
+├── src/
+│   ├── agents/
+│   │   └── mod.rs
+│   ├── autoschema/
+│   ├── bin/
+│   │   ├── forge-poc-test.rs
+│   │   ├── micro-lightning-monitor.rs
+│   │   ├── neural-execution-demo.rs
+│   │   ├── neural-execution-optimized-demo.rs
+│   │   └── phoenix-memcoin-bot.rs
+│   ├── config/
+│   ├── cryptoinsight/
+│   │   ├── jito_streamer.rs
+│   │   └── mod.rs
+│   ├── forge/
+│   │   ├── autonomous_evolution.rs
+│   │   ├── dsl_generator.rs
+│   │   ├── formal_verification.rs
+│   │   ├── hot_loader.rs
+│   │   ├── mod.rs
+│   │   ├── strategy_compiler.rs
+│   │   └── tensorzero_gateway.rs
+│   ├── geohot/
+│   │   ├── chimera_core.rs
+│   │   ├── ghost_protocol.rs
+│   │   ├── helius_stream.rs
+│   │   └── mod.rs
+│   ├── lib.rs
+│   ├── main.rs
+│   ├── memory/
+│   │   ├── disaster_recovery.rs
+│   │   ├── episodic_storage.rs
+│   │   ├── gpu_embeddings.rs
+│   │   ├── jito_integration.rs
+│   │   ├── mod.rs
+│   │   ├── security_vault.rs
+│   │   └── working_memory.rs
+│   ├── models/
+│   ├── modules/
+│   │   ├── advanced_mev_engine.rs
+│   │   ├── advanced_mev_strategies.rs
+│   │   ├── ai_connector.rs
+│   │   ├── cluster_orchestrator.rs
+│   │   ├── data_ingestor.rs
+│   │   ├── deepseek_connector.rs
+│   │   ├── dex_aggregator.rs
+│   │   ├── dex_integration.rs
+│   │   ├── enhanced_ai_brain.rs
+│   │   ├── error_handling.rs
+│   │   ├── executor.rs
+│   │   ├── helius_streamer.rs
+│   │   ├── hft_engine.rs
+│   │   ├── hybrid_price_fetcher.rs
+│   │   ├── jina_ai_connector.rs
+│   │   ├── jito_bundler.rs
+│   │   ├── jito_client.rs
+│   │   ├── jito_v2_client.rs
+│   │   ├── jupiter_dex.rs
+│   │   ├── metrics.rs
+│   │   ├── micro_lightning/
+│   │   │   └── emergency_protocols.rs
+│   │   ├── mod.rs
+│   │   ├── multi_wallet_executor.rs
+│   │   ├── overmind_mev_pipeline.rs
+│   │   ├── persistence.rs
+│   │   ├── profit_manager.rs
+│   │   ├── real_price_fetcher.rs
+│   │   ├── real_sell_executor.rs
+│   │   ├── risk.rs
+│   │   ├── rpc_failover.rs
+│   │   ├── sniple_config.rs
+│   │   ├── strategy.rs
+│   │   ├── tensorzero_client.rs
+│   │   └── vault.rs
+│   ├── monitoring/
+│   ├── neural_execution/
+│   │   ├── atomic_executor.rs
+│   │   ├── execution_monitor.rs
+│   │   ├── hardware_accelerator.rs
+│   │   ├── mod.rs
+│   │   ├── neural_predictor.rs
+│   │   └── neural_router.rs
+│   ├── nexus/
+│   │   ├── collective_consciousness.rs
+│   │   ├── mod.rs
+│   │   ├── neural_plasticity.rs
+│   │   ├── quantum_mesh.rs
+│   │   └── swarm_singularity.rs
+│   ├── overmind/
+│   │   ├── ai_engine.rs
+│   │   ├── cortex.rs
+│   │   ├── evolution.rs
+│   │   ├── genetic_modifier.rs
+│   │   ├── knowledge_graph.rs
+│   │   ├── leaderboard.rs
+│   │   ├── mod.rs
+│   │   ├── mutation_guard.rs
+│   │   ├── optimization.rs
+│   │   ├── swarm.rs
+│   │   └── validation_protocol.rs
+│   ├── pheromind/
+│   │   ├── genesis_analyzer.rs
+│   │   ├── mod.rs
+│   │   ├── pheromone_bus.rs
+│   │   └── quantum_signer.rs
+│   ├── security/
+│   │   ├── dragonflydb_cache.rs
+│   │   └── homomorphic.rs
+│   └── swarmagentic/
+├── chimera_client/
+│   ├── Cargo.toml
+│   ├── examples/
+│   │   ├── basic_usage.rs
+│   │   └── overmind_integration.rs
+│   ├── src/
+│   │   ├── backoff.rs
+│   │   ├── circuit_breaker.rs
+│   │   ├── client.rs
+│   │   ├── fallback.rs
+│   │   ├── lib.rs
+│   │   └── types.rs
+│   ├── tests/
+│   │   └── integration_tests.rs
+│   └── README.md
+├── overmind_cortex/
+│   ├── Cargo.toml
+│   └── src/
+│       ├── core.rs
+│       ├── dispatcher.rs
+│       ├── e2e_tests.rs
+│       ├── hardware_accel.rs
+│       ├── lib.rs
+│       ├── sub_millisecond_e2e.rs
+│       ├── swarm.rs
+│       └── zero_copy_v2.rs
+├── tests/
+│   ├── overmind_integration_tests.rs
+│   └── overmind_unit_tests.rs
+├── docs/
+│   └── testing-guide.md
+├── .augment/
+│   └── rules/
+│       └── imported/
+│           ├── PROJECT-SUMMARY.md
+│           └── SNIPLE_IMPLEMENTATION_SUMMARY.md
+├── Cargo.toml
+├── CHIMERA_IMPLEMENTATION_REPORT.md
+├── PROJECT-SUMMARY.md
+├── README.md
+├── SNIPLE_IMPLEMENTATION_SUMMARY.md
+├── test_qdrant_connection.rs
+├── test_qdrant_rust_client.rs
+└── test_qdrant_simple.rs
